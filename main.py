@@ -1,7 +1,10 @@
 import pygame
 from pygame.locals import *
-from data.color import Color
+from data.color import *
+import data.default as default
 from cell import Cell
+from food import Food
+
 import time
 
  
@@ -9,31 +12,40 @@ class App:
     def __init__(self):
         self._running = True
         self.screen = None
-        self.size = self.weight, self.height = 1000, 600
+        self.size = default.SCREEN_WIDTH, default.SCREEN_HEIGHT
         self.clock = pygame.time.Clock()
-        self.pool = []
-        self.color = Color()
+        self.pool_cell = []
+        self.pool_food = []
 
- 
     def on_init(self):
         #pygame features
         pygame.init()
         pygame.display.set_caption('Evolucell')
         pygame.key.set_repeat(160,50)
 
-       
-
         #background
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
-        self.screen.fill(self.color.background)
-        pygame.display.flip()
+        self.screen.fill(color.background)
 
         #cell test
         cell1 = Cell(400,400)
-        self.pool.append(cell1)
+        self.pool_cell.append(cell1)
+        self.screen.blit(self.pool_cell[0].img, self.pool_cell[0])
 
-        self.screen.blit(self.pool[0].img, self.pool[0])
+        #food test
+        for i in range(10):
+            self.pool_food.append(Food())
+            self.screen.blit(self.pool_food[i].img, self.pool_food[i])
 
+        #test
+        food_test = Food(100,100)
+        cell_test = Cell (110,100)
+        print(food_test.mask.overlap(cell_test.mask, (0,0)))
+        self.screen.blit(food_test.img, food_test)
+        self.screen.blit(cell_test.img, cell_test)
+
+
+        pygame.display.flip()
         
 
         self._running = True
@@ -44,14 +56,10 @@ class App:
             self._running = False
             
     def on_loop(self):
-        self.screen.fill(self.color.background) 
+        
 
-        self.pool[0].move_forward()
-        self.pool[0].turn_right()
 
-        print(f"direction : {self.pool[0].direction}")
-        print(f"location : {(self.pool[0].posx, self.pool[0].posy)}")
-        self.screen.blit(self.pool[0].img, self.pool[0])
+
         pygame.display.flip()
 
 
