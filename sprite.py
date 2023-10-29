@@ -27,6 +27,8 @@ class Sprite:
                 print("ERROR : location type isn't correct, random location used instead")
                 self.posx = random.randrange(int(self.width/2),default.SCREEN_WIDTH-int(self.width/2))
                 self.posy = random.randrange(int(self.width/2),default.SCREEN_HEIGHT-int(self.width/2))
+        self.pos = (self.posx,self.posy)
+
 
         self.rect = self.img.get_rect(center=(self.posx, self.posy))
     

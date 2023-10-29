@@ -7,12 +7,15 @@ from sprite import Sprite
 
  
 class Food(Sprite):
-    '''Food() generate a pearl at random location while Food(x,y) place the food at a specific location'''
-    size = random.randrange(2, 5)/2
+    '''Food() generate a pearl at random location while Food(x,y,size) place the food at a specific location and the image is zoomed according to the size factor'''
+    
 
-    def __init__(self, posx=None, posy=None):
+    def __init__(self, posx=None, posy=None, size=None ):
         super().__init__("food.png", posx, posy)
-        self.size = random.randrange(2, 5)/2
+        if size == None:
+            self.size = random.randrange(2, 5)/2
+        else :
+            self.size = size
         self.img = pygame.transform.scale(self.img_init, (self.size*self.width,self.size*self.height))
 
     def grow(self):
