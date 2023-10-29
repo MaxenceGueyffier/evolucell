@@ -125,3 +125,17 @@ class Quadtree:
             self.northEast.show(screen)
             self.southWest.show(screen)
             self.southEast.show(screen)
+
+    """get the last quadtree to which the particle would have been assigned"""
+    def get_last_quadtree(self, particle):
+        if self.northWest != None :
+            if self.northWest.boundary.containsParticle(particle):
+                return self.northWest.get_last_quadtree(particle)
+            elif self.northEast.boundary.containsParticle(particle):
+                return self.northEast.get_last_quadtree(particle)
+            elif self.southWest.boundary.containsParticle(particle):
+                return self.southWest.get_last_quadtree(particle)
+            else:
+                return self.southEast.get_last_quadtree(particle)
+        else:
+            return self

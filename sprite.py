@@ -14,7 +14,7 @@ class Sprite:
         #if no coordinate is specified, use a random location
         if posx is None and posy is None :
             self.posx = random.randrange(int(self.width/2),SCREEN_WIDTH-int(self.width/2))
-            self.posy = random.randrange(int(self.width/2),SCREEN_HEIGHT-int(self.width/2))
+            self.posy = random.randrange(int(self.height/2),SCREEN_HEIGHT-int(self.height/2))
         else :
             #if there is one, check first if it is valid
             if isinstance(posx, int) and isinstance(posy, int) :

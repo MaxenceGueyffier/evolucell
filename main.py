@@ -33,30 +33,35 @@ class App:
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self.screen.fill(color.background)
 
+        
+
+        
+
+        #quadtree test
+        boundary = Rectangle(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, color.boudaries_quadtree)
+        self.quadtree = Quadtree(2, boundary)
+    
+        #food test
+        for i in range(20):
+            self.pool_food = np.append(self.pool_food, Food(size = 0.5))
+            self.screen.blit(self.pool_food[i].img, self.pool_food[i])
+            self.quadtree.insert(self.pool_food[i].pos)
+
+        food1 = Food(400,400)
+        self.pool_food = np.append(self.pool_food, food1)
+        self.screen.blit(self.pool_food[-1].img, self.pool_food[-1])
+        self.quadtree.show(self.screen)
+
+
+
         #cell test
         cell1 = Cell(400,400)
         self.pool_cell = np.append(self.pool_cell, cell1)
         self.screen.blit(self.pool_cell[0].img, self.pool_cell[0])
 
-        #food test
-        food1 = Food(400,400)
-        self.pool_food = np.append(self.pool_food, food1)
-        self.screen.blit(self.pool_food[0].img, self.pool_food[0])
-
-        #quadtree test
-        boundary = Rectangle(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, color.boudaries_quadtree)
-        self.quadtree = Quadtree(1, boundary)
-    
-        #food test
-        for i in range(10):
-            self.pool_food = np.append(self.pool_food, Food(size = 0.5))
-            self.screen.blit(self.pool_food[i].img, self.pool_food[i])
-            self.quadtree.insert(self.pool_food[i].pos)
-
-        self.quadtree.show(self.screen)
-
         #test
-
+        quadtree_test = self.quadtree.get_last_quadtree((SCREEN_WIDTH-1,SCREEN_HEIGHT-1))
+        print(quadtree_test.particles)
         
         #print(food_test.mask.overlap(cell_test.mask, (0,0)))
         
