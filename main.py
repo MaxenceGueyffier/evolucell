@@ -27,6 +27,7 @@ class App:
         pygame.init()
         pygame.display.set_caption('Evolucell')
         pygame.key.set_repeat(160,50)
+        self.clock = pygame.time.Clock()
 
         #background
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
@@ -37,28 +38,28 @@ class App:
         self.pool_cell = np.append(self.pool_cell, cell1)
         self.screen.blit(self.pool_cell[0].img, self.pool_cell[0])
 
-        
+        #food test
+        food1 = Food(400,400)
+        self.pool_food = np.append(self.pool_food, food1)
+        self.screen.blit(self.pool_food[0].img, self.pool_food[0])
 
         #quadtree test
         boundary = Rectangle(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, color.boudaries_quadtree)
-        quadtree = Quadtree(1, boundary, 0)
-
+        self.quadtree = Quadtree(1, boundary)
+    
         #food test
-        for i in range(200):
+        for i in range(10):
             self.pool_food = np.append(self.pool_food, Food(size = 0.5))
             self.screen.blit(self.pool_food[i].img, self.pool_food[i])
-            quadtree.insert(self.pool_food[i].pos)
+            self.quadtree.insert(self.pool_food[i].pos)
 
-        quadtree.show(self.screen)
+        self.quadtree.show(self.screen)
 
         #test
-        '''
-        food_test = Food(100,100)
-        cell_test = Cell (110,100)
-        print(food_test.mask.overlap(cell_test.mask, (0,0)))
-        self.screen.blit(food_test.img, food_test)
-        self.screen.blit(cell_test.img, cell_test)
-        '''
+
+        
+        #print(food_test.mask.overlap(cell_test.mask, (0,0)))
+        
 
         pygame.display.flip()
         
@@ -69,10 +70,21 @@ class App:
     def on_event(self, event):
         if event.type == pygame.QUIT:
             self._running = False
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            x, y = pygame.mouse.get_pos()
+            print((x,y))
+            food = Food(x,y,0.5)
+            self.pool_food = np.append(self.pool_food, food)
+            self.quadtree.insert(food.pos)
+            self.screen.blit(food.img, food)
+
             
     def on_loop(self):
-        
+        self.clock.tick(FPS)
 
+            
+        self.quadtree.show(self.screen)
 
 
         pygame.display.flip()

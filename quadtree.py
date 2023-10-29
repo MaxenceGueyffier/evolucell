@@ -2,6 +2,15 @@ import pygame
 from rectangle import *
 import numpy as np
 
+def contained(nptup,nparray):
+    """check if the exact particule (or a slightly different) is already in the quadtree"""
+    _set = set((x,y) for [x,y] in nparray)
+    (x,y) = nptup
+    for i in range(-1,2):
+        for j in range(-1,2):
+            if (x+i,y+j) in _set :
+                return True
+    return False
 
 class Quadtree:
     '''
@@ -69,6 +78,14 @@ class Quadtree:
     def insert(self, particle):
         """add a particle (which is a tuple of coordinate) to this Quadtree"""
 
+        #check this particle doesn't already exist or even a slightly different 
+        #because it could create an infinte loop while trying to split the quadtree into smaller and smaller sub_quadtree 
+        if(self.subdivision == 0):
+            if len(self.particles)!=0 :
+                if contained (particle, self.particles):
+                    print("ERROR : you try to add a praticle already")
+                    return False
+
         #check if you're in the right Quadtree
         if self.boundary.containsParticle(particle) == False:
             return False
@@ -76,6 +93,8 @@ class Quadtree:
             #add particle to the list of particles with the right format
             self.particles = np.append(self.particles, (particle))
             self.particles = np.reshape(self.particles, (-1, 2))
+
+        
 
         #if the Quadtree is not out of capacity yet
         if len(self.particles) <= self.capacity:
