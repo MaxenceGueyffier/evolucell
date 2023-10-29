@@ -1,6 +1,5 @@
 import pygame
 from data.color import *
-from pygame.math import Vector2
 
 
 class Rectangle:
@@ -9,7 +8,7 @@ class Rectangle:
     Rectangle used as boundaries by a Quadtree\n
     x,y are the coordinates of the upper left corner of the rectangle
     """
-    def __init__(self, x:int, y:int, width, height, color=(0,0,0), line_thickness=1):
+    def __init__(self, x:int, y:int, width:int, height:int, color=(0,0,0), line_thickness=1):
         self.x = x
         self.y = y
         self.width = width

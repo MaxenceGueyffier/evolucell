@@ -1,5 +1,4 @@
 import pygame
-from pygame.math import Vector2
 from rectangle import *
 import numpy as np
 
@@ -32,26 +31,26 @@ class Quadtree:
         boundary_nw = Rectangle(
                 parent.x,
                 parent.y,
-                parent.width/2,
-                parent.height/2
+                int(parent.width/2),
+                int(parent.height/2)
             )
         boundary_ne = Rectangle(
-                parent.x + parent.width/2,
+                parent.x + int(parent.width/2),
                 parent.y,
-                parent.width/2,
-                parent.height/2
+                parent.width - int(parent.width/2),
+                int(parent.height/2)
             )
         boundary_sw = Rectangle(
                 parent.x,
-                parent.y + parent.height/2,
-                parent.width/2,
-                parent.height/2
+                parent.y + int(parent.height/2),
+                int(parent.width/2),
+                parent.height - int(parent.height/2)
             )
         boundary_se = Rectangle(
-                parent.x + parent.width/2,
-                parent.y + parent.height/2,
-                parent.width/2,
-                parent.height/2
+                parent.x + int(parent.width/2),
+                parent.y + int(parent.height/2),
+                parent.width - int(parent.width/2),
+                parent.height - int(parent.height/2)
             )
         
         #Each Rectangle is assignated to the correct sub-Quadtree
