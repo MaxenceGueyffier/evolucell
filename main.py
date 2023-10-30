@@ -7,6 +7,7 @@ from food import Food
 from quadtree import Quadtree
 from rectangle import Rectangle
 import numpy as np
+from colision_handler import *
 
 
 
@@ -31,11 +32,7 @@ class App:
 
         #background
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
-        self.screen.fill(color.background)
-
-        
-
-        
+        self.screen.fill(color.background)    
 
         #quadtree test
         boundary = Rectangle(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, color.boudaries_quadtree)
@@ -55,20 +52,16 @@ class App:
 
 
         #cell test
-        cell1 = Cell(400,400)
+        cell1 = Cell(490,290)
         self.pool_cell = np.append(self.pool_cell, cell1)
         self.screen.blit(self.pool_cell[0].img, self.pool_cell[0])
 
-        #test
-        quadtree_test = self.quadtree.get_last_quadtree((SCREEN_WIDTH-1,SCREEN_HEIGHT-1))
-        print(quadtree_test.particles)
+
         
         #print(food_test.mask.overlap(cell_test.mask, (0,0)))
         
-
         pygame.display.flip()
         
-
         self._running = True
 
  
@@ -84,12 +77,29 @@ class App:
             self.quadtree.insert(food.pos)
             self.screen.blit(food.img, food)
 
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_z:
+                self.pool_cell[0].move_forward()
+            if event.key == pygame.K_q:
+                self.pool_cell[0].turn_left()
+            if event.key == pygame.K_d:
+                self.pool_cell[0].turn_right()
+            self.screen.blit(self.pool_cell[0].img, self.pool_cell[0])
+
+
+        
+
             
     def on_loop(self):
         self.clock.tick(FPS)
 
-            
         self.quadtree.show(self.screen)
+
+        quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree)
+
+        for qt in quadtree_test :
+            qt.show(self.screen, (255,0,0))
+
 
 
         pygame.display.flip()

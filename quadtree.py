@@ -118,13 +118,15 @@ class Quadtree:
             return False
 
     #reveal each Quadtree
-    def show(self, screen):
-        self.boundary.Draw(screen)
+    def show(self, screen, color=(0,0,0)):
         if self.northWest != None:
-            self.northWest.show(screen)
-            self.northEast.show(screen)
-            self.southWest.show(screen)
-            self.southEast.show(screen)
+            self.northWest.show(screen, color)
+            self.northEast.show(screen, color)
+            self.southWest.show(screen, color)
+            self.southEast.show(screen, color)
+        else :
+            self.boundary.Draw(screen, color)
+
 
     """
     get the last quadtree to which the particle would have been assigned

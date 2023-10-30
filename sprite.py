@@ -4,7 +4,19 @@ import random
 
 
 class Sprite:
-    '''Every movable object is defined by an image and a location. If no coordinate is specified, then a random value is chosen instead.'''
+    '''
+    Every movable object is defined by an image and a location. If no coordinate is specified, then a random value is chosen instead.\n
+    img_init : image before deformation
+    img : image after deformation
+    mask : mask of the deformed image
+    rect : rect
+    posx : x-coordinate
+    posy : y-coordinate
+    width : width
+    height : height
+
+
+    '''
     def __init__(self, img_name : str, posx=None, posy=None):
         self.img_init = pygame.image.load("lib/"+img_name).convert_alpha()
         self.img = pygame.image.load("lib/"+img_name).convert_alpha()
