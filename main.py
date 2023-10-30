@@ -54,8 +54,8 @@ class App:
         self.quadtree = Quadtree(2, boundary)
     
         #food test
-        for i in range(20):
-            self.pool_food = np.append(self.pool_food, Food(size = 0.5))
+        for i in range(100):
+            self.pool_food = np.append(self.pool_food, Food())
             self.quadtree.insert(self.pool_food[i].pos)
         food1 = Food(400,400)
         self.pool_food = np.append(self.pool_food, food1)
@@ -79,7 +79,7 @@ class App:
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
             #print((x,y))
-            food = Food(x,y,0.5)
+            food = Food(x,y,2)
             self.pool_food = np.append(self.pool_food, food)
             self.quadtree.insert(food.pos)
 
@@ -104,13 +104,15 @@ class App:
         self.quadtree.show(self.screen)
         for qt in self.quadtree_test :
             qt.show(self.screen, (255,0,0))
+
+        for food in self.pool_food:
+            self.food_screen.blit(food.img, food)
         
         for cell in self.pool_cell:
             clear_surface(self.cell_screen)
             self.cell_screen.blit(cell.img, cell)
 
-        for food in self.pool_food:
-            self.food_screen.blit(food.img, food)
+        
 
         self.screen.blit(self.cell_screen, (0,0))
         self.screen.blit(self.food_screen, (0,0))
