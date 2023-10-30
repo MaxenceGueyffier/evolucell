@@ -95,7 +95,8 @@ class App:
 
         self.quadtree.show(self.screen)
 
-        quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree)
+
+        quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
 
         for qt in quadtree_test :
             qt.show(self.screen, (255,0,0))
