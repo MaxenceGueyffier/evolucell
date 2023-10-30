@@ -5,8 +5,8 @@ from sprite import Sprite
 
 class Cell(Sprite): 
     weight = 1.0
-    speed = 1
-    angular_speed = 1
+    speed = 5
+    angular_speed = 5
     direction = 0
 
     def __init__(self, posx=None, posy=None):

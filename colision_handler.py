@@ -1,7 +1,7 @@
 from sprite import Sprite
 from quadtree import Quadtree
 import numpy as np
-from data.default import *
+from common.default import *
 
 def get_maximal_depth(sprite) :
     w = SCREEN_WIDTH

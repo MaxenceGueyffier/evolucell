@@ -1,5 +1,4 @@
 import pygame
-from data.color import *
 
 
 class Rectangle:

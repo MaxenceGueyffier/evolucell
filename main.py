@@ -1,7 +1,9 @@
+import os
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 from pygame.locals import *
-from data.color import *
-from data.default import *
+from common.color import *
+from common.default import *
 from cell import Cell
 from food import Food
 from quadtree import Quadtree
@@ -13,6 +15,10 @@ from colision_handler import *
 
 import time
 
+def clear_surface(surface):
+        surface.fill([0,0,0,0])
+
+
  
 class App:
     def __init__(self):
@@ -22,6 +28,7 @@ class App:
         self.clock = pygame.time.Clock()
         self.pool_cell = np.array([])
         self.pool_food = np.array([])
+        self.quadtree_test = np.array([])
 
     def on_init(self):
         #pygame features
@@ -32,33 +39,33 @@ class App:
 
         #background
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
-        self.screen.fill(color.background)    
+        self.screen.fill(color.background) 
 
-        #quadtree test
+        #food screen
+        self.food_screen = pygame.surface.Surface((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.SRCALPHA, 32)
+        self.food_screen.convert_alpha()
+
+        #cell_screen
+        self.cell_screen = pygame.surface.Surface((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.SRCALPHA, 32)
+        self.food_screen.convert_alpha()
+
+        #first quadtree
         boundary = Rectangle(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, color.boudaries_quadtree)
         self.quadtree = Quadtree(2, boundary)
     
         #food test
         for i in range(20):
             self.pool_food = np.append(self.pool_food, Food(size = 0.5))
-            self.screen.blit(self.pool_food[i].img, self.pool_food[i])
             self.quadtree.insert(self.pool_food[i].pos)
-
         food1 = Food(400,400)
         self.pool_food = np.append(self.pool_food, food1)
-        self.screen.blit(self.pool_food[-1].img, self.pool_food[-1])
         self.quadtree.show(self.screen)
-
-
 
         #cell test
         cell1 = Cell(490,290)
         self.pool_cell = np.append(self.pool_cell, cell1)
-        self.screen.blit(self.pool_cell[0].img, self.pool_cell[0])
-
-
-        
-        #print(food_test.mask.overlap(cell_test.mask, (0,0)))
+  
+        self.on_render()
         
         pygame.display.flip()
         
@@ -71,11 +78,10 @@ class App:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
-            print((x,y))
+            #print((x,y))
             food = Food(x,y,0.5)
             self.pool_food = np.append(self.pool_food, food)
             self.quadtree.insert(food.pos)
-            self.screen.blit(food.img, food)
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_z:
@@ -84,30 +90,33 @@ class App:
                 self.pool_cell[0].turn_left()
             if event.key == pygame.K_d:
                 self.pool_cell[0].turn_right()
-            self.screen.blit(self.pool_cell[0].img, self.pool_cell[0])
-
-
-        
-
             
     def on_loop(self):
         self.clock.tick(FPS)
 
-        self.quadtree.show(self.screen)
-
-
-        quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
-
-        for qt in quadtree_test :
-            qt.show(self.screen, (255,0,0))
-
-
+        self.quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
 
         pygame.display.flip()
 
-
-
     def on_render(self):
+        self.screen.fill(color.background) 
+
+        self.quadtree.show(self.screen)
+        for qt in self.quadtree_test :
+            qt.show(self.screen, (255,0,0))
+        
+        for cell in self.pool_cell:
+            clear_surface(self.cell_screen)
+            self.cell_screen.blit(cell.img, cell)
+
+        for food in self.pool_food:
+            self.food_screen.blit(food.img, food)
+
+        self.screen.blit(self.cell_screen, (0,0))
+        self.screen.blit(self.food_screen, (0,0))
+
+        pygame.display.flip()
+
         pygame.display.update()
 
     def on_cleanup(self):

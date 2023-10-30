@@ -1,5 +1,5 @@
 import pygame
-import data.default as default
+import common.default as default
 import random
 from sprite import Sprite
 
