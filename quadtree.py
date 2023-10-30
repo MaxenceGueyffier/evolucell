@@ -17,7 +17,7 @@ class Quadtree:
     A Quadtree is an object wich can subdivided into 4 parts, each Quadtree can contains a specific number of particles\n
     capcity: nbr of particles allowed into one Quadtree
     boundary: Rectangle in which the Quadtree is about to be created
-    subdivision: nbr of times the Quadtree was split
+    subdivision: nbr of times the Quadtree was split, usually starts at 0
     '''
     out_of_capacity = False
     
@@ -126,16 +126,22 @@ class Quadtree:
             self.southWest.show(screen)
             self.southEast.show(screen)
 
-    """get the last quadtree to which the particle would have been assigned"""
-    def get_last_quadtree(self, particle):
-        if self.northWest != None :
-            if self.northWest.boundary.containsParticle(particle):
-                return self.northWest.get_last_quadtree(particle)
-            elif self.northEast.boundary.containsParticle(particle):
-                return self.northEast.get_last_quadtree(particle)
-            elif self.southWest.boundary.containsParticle(particle):
-                return self.southWest.get_last_quadtree(particle)
+    """
+    get the last quadtree to which the particle would have been assigned
+    depth_max : only allows Quadtree with a maximal level of subdivision, a negative value means no maximal depth 
+    """
+    def get_last_quadtree(self, particle, depth_max:int = -1):
+        if (depth_max>=0 and self.subdivision!=depth_max) or depth_max<0 :
+            if self.northWest != None :
+                if self.northWest.boundary.containsParticle(particle):
+                    return self.northWest.get_last_quadtree(particle,depth_max)
+                elif self.northEast.boundary.containsParticle(particle):
+                    return self.northEast.get_last_quadtree(particle, depth_max)
+                elif self.southWest.boundary.containsParticle(particle):
+                    return self.southWest.get_last_quadtree(particle, depth_max)
+                else:
+                    return self.southEast.get_last_quadtree(particle, depth_max)
             else:
-                return self.southEast.get_last_quadtree(particle)
-        else:
+                return self
+        else : 
             return self
