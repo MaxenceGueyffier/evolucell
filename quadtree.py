@@ -3,8 +3,8 @@ from rectangle import *
 import numpy as np
 from functools import total_ordering
 
-def contained(nptup,nparray):
-    """check if the exact particule (or a slightly different) is already in the quadtree"""
+def contain_approximatively(nptup,nparray):
+    """check if the particule or a slightly different is already in the quadtree"""
     _set = set((x,y) for [x,y] in nparray)
     (x,y) = nptup
     for i in range(-1,2):
@@ -12,6 +12,15 @@ def contained(nptup,nparray):
             if (x+i,y+j) in _set :
                 return True
     return False
+
+def contain(nptup,nparray):
+    """check if the exact particule is already in the quadtree"""
+    _set = set((x,y) for [x,y] in nparray)
+    (x,y) = nptup
+    if (x,y) in _set :
+        return True
+    else:
+        return False
 
 @total_ordering
 class Quadtree:
@@ -34,8 +43,13 @@ class Quadtree:
         self.southWest: Quadtree = None
         self.southEast: Quadtree = None
 
+    #add comparison
     def __lt__(self, other):
+        """indicate if this_quadtree < other_quadtre"""
         return len(self.particles) < len(other.particles)
+    def __gt__(self, other):
+        """indicate if this_quadtree > other_quadtre"""
+        return len(self.particles) > len(other.particles)
 
     def subdivide(self):
         """divide the Quadtree into 4 sub-Quadtree and assignated each particle to the correct sub-Quadtree"""
@@ -87,7 +101,8 @@ class Quadtree:
         #because it could create an infinte loop while trying to split the quadtree into smaller and smaller sub_quadtree 
         if(self.subdivision == 0):
             if len(self.particles)!=0 :
-                if contained (particle, self.particles):
+                if contain_approximatively (particle, self.particles):
+                    self.delete(particle)
                     print("ERROR : you try to add a praticle already")
                     return False
 
@@ -121,6 +136,27 @@ class Quadtree:
                 if self.southEast.insert(particle):
                     return True
             return False
+
+    def delete(self, particle):
+        """delete a particle (which is a tuple of coordinate) from this Quadtree"""        
+        for i in range(len(self.particles)-1, -1, -1):
+            if self.particles[i][0]==particle[0] and self.particles[i][1]==particle[1]:
+                self.particles = np.delete(np.reshape(self.particles,(-1,2)), i, 0)
+                if self.northWest != None :
+                    if self.northWest.boundary.containsParticle(particle):
+                        return self.northWest.delete(particle)
+                    elif self.northEast.boundary.containsParticle(particle):
+                        return self.northEast.delete(particle)
+                    elif self.southWest.boundary.containsParticle(particle):
+                        return self.southWest.delete(particle)
+                    else:
+                        return self.southEast.delete(particle)
+                else:
+                    print("after delete",self.particles)
+                    return True
+        return False
+            
+        
 
     #reveal each Quadtree
     def show(self, screen, color=(0,0,0)):
