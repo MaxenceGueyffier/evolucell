@@ -1,6 +1,7 @@
 import pygame
 from rectangle import *
 import numpy as np
+from functools import total_ordering
 
 def contained(nptup,nparray):
     """check if the exact particule (or a slightly different) is already in the quadtree"""
@@ -12,6 +13,7 @@ def contained(nptup,nparray):
                 return True
     return False
 
+@total_ordering
 class Quadtree:
     '''
     A Quadtree is an object wich can subdivided into 4 parts, each Quadtree can contains a specific number of particles\n
@@ -21,7 +23,7 @@ class Quadtree:
     '''
     out_of_capacity = False
     
-    def __init__(self, capacity: int, boundary: Rectangle , subdivision: int = 0):
+    def __init__(self, capacity, boundary, subdivision: int = 0):
         self.capacity = capacity
         self.boundary = boundary
         self.particles = np.array([])
@@ -31,6 +33,9 @@ class Quadtree:
         self.northEast: Quadtree = None
         self.southWest: Quadtree = None
         self.southEast: Quadtree = None
+
+    def __lt__(self, other):
+        return len(self.particles) < len(other.particles)
 
     def subdivide(self):
         """divide the Quadtree into 4 sub-Quadtree and assignated each particle to the correct sub-Quadtree"""

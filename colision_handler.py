@@ -2,6 +2,7 @@ from sprite import Sprite
 from quadtree import Quadtree
 import numpy as np
 from common.default import *
+import pygame
 
 def get_maximal_depth(sprite) :
     w = SCREEN_WIDTH
@@ -13,7 +14,7 @@ def get_maximal_depth(sprite) :
         depth += 1
     return depth
 
-def get_quadtrees_from_a_sprite (sprite: Sprite, quadtree:Quadtree, depth:int = 4):
+def get_quadtrees_from_a_sprite (sprite, quadtree, depth = 4):
     """
     from a specific sprite, get each minimum quadtree where it is located.\n
     sprite : can be any sprite
@@ -29,5 +30,23 @@ def get_quadtrees_from_a_sprite (sprite: Sprite, quadtree:Quadtree, depth:int = 
     quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree((w,y),depth))
     quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree((x,h),depth))
     quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree((w,h),depth))
-
+    quadtree_array = np.unique(quadtree_array)
     return quadtree_array
+
+def is_colision(object1, type_object2, quadtree, screen=None):
+    mask1 = pygame.mask.from_surface(object1.img)       
+    list_colision = np.array([])
+    quadtree_array = get_quadtrees_from_a_sprite(object1, quadtree, get_maximal_depth(object1))
+    
+    for qt in quadtree_array:
+        for [posx, posy] in qt.particles:
+            object2 = type_object2(int(posx), int(posy))
+            mask2 = pygame.mask.from_surface(object2.img)
+            if mask1.overlap(mask2, (object2.rect.x-object1.rect.x, object2.rect.y-object1.rect.y)) != None:
+                if screen != None :
+                    screen.blit(mask2.to_surface(unsetcolor=(0, 0, 0, 0), setcolor=(255, 255, 255, 255)), object2)
+                list_colision = np.append(list_colision, object2.pos)
+    return list_colision
+
+
+

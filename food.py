@@ -9,7 +9,7 @@ class Food(Sprite):
     '''Food() generate a pearl at random location while Food(x,y,size) place the food at a specific location and the image is zoomed according to the size factor'''
     
 
-    def __init__(self, posx=None, posy=None, size=None ):
+    def __init__(self, posx=None, posy=None, size=1 ):
         super().__init__("food.png", posx, posy)
         if size == None:
             self.size = random.randrange(2, 4)/2

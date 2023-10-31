@@ -18,7 +18,6 @@ import time
 def clear_surface(surface):
         surface.fill([0,0,0,0])
 
-
  
 class App:
     def __init__(self):
@@ -41,6 +40,10 @@ class App:
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self.screen.fill(color.background) 
 
+        #debug screen
+        self.debug_screen = pygame.surface.Surface((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.SRCALPHA, 32)
+        self.debug_screen.convert_alpha()
+
         #food screen
         self.food_screen = pygame.surface.Surface((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.SRCALPHA, 32)
         self.food_screen.convert_alpha()
@@ -54,15 +57,15 @@ class App:
         self.quadtree = Quadtree(2, boundary)
     
         #food test
-        for i in range(100):
-            self.pool_food = np.append(self.pool_food, Food())
+        for i in range(10):
+            self.pool_food = np.append(self.pool_food, Food(size=1))
             self.quadtree.insert(self.pool_food[i].pos)
-        food1 = Food(400,400)
+        food1 = Food(500,10)
         self.pool_food = np.append(self.pool_food, food1)
         self.quadtree.show(self.screen)
 
         #cell test
-        cell1 = Cell(490,290)
+        cell1 = Cell(500,300)
         self.pool_cell = np.append(self.pool_cell, cell1)
   
         self.on_render()
@@ -79,7 +82,7 @@ class App:
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
             #print((x,y))
-            food = Food(x,y,2)
+            food = Food(x,y,1)
             self.pool_food = np.append(self.pool_food, food)
             self.quadtree.insert(food.pos)
 
@@ -93,7 +96,9 @@ class App:
             
     def on_loop(self):
         self.clock.tick(FPS)
-
+        clear_surface(self.debug_screen)
+        list_object_colision=is_colision(self.pool_cell[0], Food, self.quadtree, self.debug_screen)
+        print(list_object_colision)
         self.quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
 
         pygame.display.flip()
@@ -105,17 +110,20 @@ class App:
         for qt in self.quadtree_test :
             qt.show(self.screen, (255,0,0))
 
+        clear_surface(self.food_screen)
         for food in self.pool_food:
             self.food_screen.blit(food.img, food)
         
+        clear_surface(self.cell_screen)
         for cell in self.pool_cell:
-            clear_surface(self.cell_screen)
             self.cell_screen.blit(cell.img, cell)
 
         
 
         self.screen.blit(self.cell_screen, (0,0))
         self.screen.blit(self.food_screen, (0,0))
+        self.screen.blit(self.debug_screen, (0,0))
+
 
         pygame.display.flip()
 
