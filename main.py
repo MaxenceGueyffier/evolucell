@@ -30,7 +30,7 @@ class App:
         #pygame features
         pygame.init()
         pygame.display.set_caption('Evolucell')
-        pygame.key.set_repeat(160,50)
+        pygame.key.set_repeat(150,50)
         self.clock = pygame.time.Clock()
 
         #background
@@ -61,7 +61,7 @@ class App:
         self.pool_food = np.append(self.pool_food, food1)
         self.quadtree.insert(food1.pos)
 
-        self.quadtree.show(self.screen)
+        #self.quadtree.show(self.screen)
 
         #cell test
         cell1 = Cell(500,300)
@@ -104,7 +104,7 @@ class App:
         self.clock.tick(FPS)
         clear_surface(self.debug_screen)
 
-        list_object_colision=is_colision(self.pool_cell[0], Food, self.quadtree, self.debug_screen)
+        list_object_colision=is_colision(self.pool_cell[0], Food, self.quadtree)
         list_object_colision = np.reshape(list_object_colision, (-1,2))
         for food_x, food_y in list_object_colision:
             self.quadtree.delete((food_x, food_y))
@@ -119,9 +119,9 @@ class App:
     def on_render(self):
         self.screen.fill(color.background) 
 
-        self.quadtree.show(self.debug_screen)
-        for qt in self.quadtree_test :
-            qt.show(self.debug_screen, (255,0,0))
+        # self.quadtree.show(self.debug_screen)
+        # for qt in self.quadtree_test :
+        #     qt.show(self.debug_screen, (255,0,0))
 
         clear_surface(self.food_screen)
         for food in self.pool_food:
