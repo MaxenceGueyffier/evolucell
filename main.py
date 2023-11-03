@@ -103,8 +103,15 @@ class App:
     def on_loop(self):
         self.clock.tick(FPS)
         clear_surface(self.debug_screen)
-        list_object_colision=is_colision(self.pool_cell[0], Food, self.quadtree, self.debug_screen)
 
+        list_object_colision=is_colision(self.pool_cell[0], Food, self.quadtree, self.debug_screen)
+        list_object_colision = np.reshape(list_object_colision, (-1,2))
+        for food_x, food_y in list_object_colision:
+            self.quadtree.delete((food_x, food_y))
+            for index in range(len(self.pool_food)):
+                if self.pool_food[index].pos == (food_x, food_y):
+                    self.pool_food = np.delete(self.pool_food, [index])
+                    break
         self.quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
 
         pygame.display.flip()
