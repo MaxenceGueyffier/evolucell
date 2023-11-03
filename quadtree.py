@@ -95,66 +95,82 @@ class Quadtree:
             self.southEast.insert(self.particles[i])
 
     def insert(self, particle):
-        """add a particle (which is a tuple of coordinate) to this Quadtree"""
+        """add a particle (which is a tuple of coordinate) to this Quadtree. Return True if it worked and False otherwise"""
 
-        #check this particle doesn't already exist or even a slightly different 
-        #because it could create an infinte loop while trying to split the quadtree into smaller and smaller sub_quadtree 
+        #if this particle already exists, delete it
+        #we return an error message if it's a slightly different because it could create an infinte loop while trying to split the quadtree into smaller and smaller sub_quadtree 
         if(self.subdivision == 0):
             if len(self.particles)!=0 :
-                if contain_approximatively (particle, self.particles):
-                    self.delete(particle)
-                    print("ERROR : you try to add a praticle already")
+                if contain_approximatively(particle, self.particles):
+                    if contain(particle, self.particles):
+                        self.delete(particle)
+                    else :
+                        print("ERROR: couldn't add this particle")
                     return False
-
+        
         #check if you're in the right Quadtree
         if self.boundary.containsParticle(particle) == False:
             return False
-        else :
-            #add particle to the list of particles with the right format
-            self.particles = np.append(self.particles, (particle))
-            self.particles = np.reshape(self.particles, (-1, 2))
-
         
+        #add particle to the list of particles with the right format
+        self.particles = np.append(self.particles, (particle))
+        self.particles = np.reshape(self.particles, (-1, 2))
 
         #if the Quadtree is not out of capacity yet
-        if len(self.particles) <= self.capacity:
-            return True
-        else:
+        if len(self.particles) > self.capacity:
             #if it's the first time the Quadtree is out of capacity, then subdivide it
             if self.out_of_capacity == False :
                 self.out_of_capacity = True
                 self.subdivide()
-                return True
             #otherwise, add the particle to the correct sub-Quadtree
             else:
-                if self.northWest.insert(particle):
-                    return True
-                if self.northEast.insert(particle):
-                    return True
-                if self.southWest.insert(particle):
-                    return True
-                if self.southEast.insert(particle):
-                    return True
-            return False
+                for subqt in [self.northWest, self.northEast, self.southWest, self.southEast]:
+                    subqt.insert(particle)
+            
+        return True
+
+    def unify (self):
+        """remove every sub-Quadtree"""
+        self.northWest = None
+        self.northEast = None
+        self.northWest = None
+        self.northEast = None
 
     def delete(self, particle):
-        """delete a particle (which is a tuple of coordinate) from this Quadtree"""        
+        """delete a particle (which is a tuple of coordinate) from this Quadtree. Return True if it worked and False otherwise"""        
         for i in range(len(self.particles)-1, -1, -1):
             if self.particles[i][0]==particle[0] and self.particles[i][1]==particle[1]:
                 self.particles = np.delete(np.reshape(self.particles,(-1,2)), i, 0)
                 if self.northWest != None :
-                    if self.northWest.boundary.containsParticle(particle):
-                        return self.northWest.delete(particle)
-                    elif self.northEast.boundary.containsParticle(particle):
-                        return self.northEast.delete(particle)
-                    elif self.southWest.boundary.containsParticle(particle):
-                        return self.southWest.delete(particle)
-                    else:
-                        return self.southEast.delete(particle)
-                else:
-                    print("after delete",self.particles)
-                    return True
+                    for subqt in [self.northWest, self.northEast, self.southWest, self.southEast]:
+                        if subqt.boundary.containsParticle(particle) :
+                            if len(self.particles) <= self.capacity:
+                                self.unify()
+                                self.out_of_capacity = False
+                            else:
+                                subqt.delete(particle)
+                            return True
         return False
+                    
+
+
+
+
+                # if self.northWest != None :
+                #     if self.northWest.boundary.containsParticle(particle):
+                #         if self.northWest.northWest != None :
+                            
+                #         else:
+                #             return self.northWest.delete(particle)
+                #     elif self.northEast.boundary.containsParticle(particle):
+                #         return self.northEast.delete(particle)
+                #     elif self.southWest.boundary.containsParticle(particle):
+                #         return self.southWest.delete(particle)
+                #     else:
+                #         return self.southEast.delete(particle)
+
+                # else:
+                #     return True
             
         
 

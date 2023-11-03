@@ -57,11 +57,13 @@ class App:
         self.quadtree = Quadtree(2, boundary)
     
         #food test
-        for i in range(10):
+        for i in range(100):
             self.pool_food = np.append(self.pool_food, Food(size=1))
             self.quadtree.insert(self.pool_food[i].pos)
         food1 = Food(500,10)
         self.pool_food = np.append(self.pool_food, food1)
+        self.quadtree.insert(food1.pos)
+
         self.quadtree.show(self.screen)
 
         #cell test
@@ -83,8 +85,13 @@ class App:
             x, y = pygame.mouse.get_pos()
             #print((x,y))
             food = Food(x,y,1)
-            self.pool_food = np.append(self.pool_food, food)
-            self.quadtree.insert(food.pos)
+            if self.quadtree.insert(food.pos) :
+                self.pool_food = np.append(self.pool_food, food)
+            else:
+                for index in range(len(self.pool_food)):
+                    if self.pool_food[index].pos == food.pos :
+                        self.pool_food = np.delete(self.pool_food, [index])
+                        break
 
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_z:
@@ -97,8 +104,7 @@ class App:
     def on_loop(self):
         self.clock.tick(FPS)
         clear_surface(self.debug_screen)
-        list_object_colision=is_colision(self.pool_cell[0], Food, self.quadtree, self.debug_screen)
-        print(list_object_colision)
+        #list_object_colision=is_colision(self.pool_cell[0], Food, self.quadtree, self.debug_screen)
         self.quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
 
         pygame.display.flip()
@@ -106,9 +112,9 @@ class App:
     def on_render(self):
         self.screen.fill(color.background) 
 
-        self.quadtree.show(self.screen)
+        self.quadtree.show(self.debug_screen)
         for qt in self.quadtree_test :
-            qt.show(self.screen, (255,0,0))
+            qt.show(self.debug_screen, (255,0,0))
 
         clear_surface(self.food_screen)
         for food in self.pool_food:
