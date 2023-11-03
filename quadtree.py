@@ -102,9 +102,7 @@ class Quadtree:
         if(self.subdivision == 0):
             if len(self.particles)!=0 :
                 if contain_approximatively(particle, self.particles):
-                    if contain(particle, self.particles):
-                        self.delete(particle)
-                    else :
+                    if not self.delete(particle) :
                         print("ERROR: couldn't add this particle")
                     return False
         
