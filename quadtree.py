@@ -148,28 +148,7 @@ class Quadtree:
                             else:
                                 subqt.delete(particle)
                             return True
-        return False
-                    
-
-
-
-
-                # if self.northWest != None :
-                #     if self.northWest.boundary.containsParticle(particle):
-                #         if self.northWest.northWest != None :
-                            
-                #         else:
-                #             return self.northWest.delete(particle)
-                #     elif self.northEast.boundary.containsParticle(particle):
-                #         return self.northEast.delete(particle)
-                #     elif self.southWest.boundary.containsParticle(particle):
-                #         return self.southWest.delete(particle)
-                #     else:
-                #         return self.southEast.delete(particle)
-
-                # else:
-                #     return True
-            
+        return False            
         
 
     #reveal each Quadtree

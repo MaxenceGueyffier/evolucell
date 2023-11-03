@@ -10,9 +10,6 @@ from quadtree import Quadtree
 from rectangle import Rectangle
 import numpy as np
 from colision_handler import *
-
-
-
 import time
 
 def clear_surface(surface):
@@ -96,6 +93,8 @@ class App:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_z:
                 self.pool_cell[0].move_forward()
+            if event.key == pygame.K_s:
+                self.pool_cell[0].move_backward()
             if event.key == pygame.K_q:
                 self.pool_cell[0].turn_left()
             if event.key == pygame.K_d:
@@ -104,7 +103,8 @@ class App:
     def on_loop(self):
         self.clock.tick(FPS)
         clear_surface(self.debug_screen)
-        #list_object_colision=is_colision(self.pool_cell[0], Food, self.quadtree, self.debug_screen)
+        list_object_colision=is_colision(self.pool_cell[0], Food, self.quadtree, self.debug_screen)
+
         self.quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
 
         pygame.display.flip()
