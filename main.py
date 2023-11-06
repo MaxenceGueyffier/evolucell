@@ -114,26 +114,41 @@ class App:
         self.clock.tick(FPS)
         clear_surface(self.debug_screen)
 
-        for cindex in range(len(self.pool_cell)) :
-            #decrease energy every frame
-            self.pool_cell[cindex].decrease_energy()  
-
-            #if there is any colision btwn a cell and some food, the cell eat the food
-            list_object_colision=is_colision(self.pool_cell[cindex], Food, self.quadtree)
-            list_object_colision = np.reshape(list_object_colision, (-1,2))
-            for food_x, food_y in list_object_colision:
-                self.quadtree.delete((food_x, food_y))
-                for index in range(len(self.pool_food)):
-                    if self.pool_food[index].pos == (food_x, food_y):
-                        self.pool_food = np.delete(self.pool_food, [index])
-                        self.pool_cell[cindex].eat()
-                        print(self.pool_cell[cindex].energy_level)
-                        break
+        cindex = 0
+        while cindex < len(self.pool_cell) and cindex >= 0:
             
             #if a cell is dead, delete it from the the list cell_pool
+            print(self.pool_cell[0].energy_level)
             if self.pool_cell[cindex].is_dead():
+                print(len(self.pool_cell))
                 self.pool_cell = np.delete(self.pool_cell, [cindex])
                 print(f'cell n°{cindex} is dead')
+                #update beacause the length of pool_cell has changed
+                cindex -= 1
+                
+            else:
+                #decrease energy every frame
+                self.pool_cell[cindex].decrease_energy()  
+
+                #if there is any colision btwn a cell and some food, the cell eat the food
+                list_object_colision=is_colision(self.pool_cell[cindex], Food, self.quadtree)
+                list_object_colision = np.reshape(list_object_colision, (-1,2))
+                for food_x, food_y in list_object_colision:
+                    self.quadtree.delete((food_x, food_y))
+                    for index in range(len(self.pool_food)):
+                        if self.pool_food[index].pos == (food_x, food_y):
+                            self.pool_food = np.delete(self.pool_food, [index])
+                            self.pool_cell[cindex].eat()
+                            print(self.pool_cell[cindex].energy_level)
+                            break
+
+                #if a cell has enough energy, it gives birth to another cell
+                if self.pool_cell[cindex].is_pregnant():
+                    child = self.pool_cell[cindex].give_birth()
+                    self.pool_cell = np.append(self.pool_cell, child)
+
+            cindex += 1
+            
 
         #self.quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
 

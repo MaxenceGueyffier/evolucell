@@ -5,7 +5,8 @@ from common.default import *
 
 
 class Cell(Sprite): 
-    energy_level = 100
+    energy_level_init = 100
+    energy_level = energy_level_init
     speed = 5
     angular_speed = 5
     direction = 0
@@ -65,11 +66,21 @@ class Cell(Sprite):
     def decrease_energy(self):
         self.energy_level -= 0.5
 
-    def give_birth():
-        pass
-
     def is_dead(self):
         if self.energy_level <= 0:
             return True
         else :
             return False
+        
+    def is_pregnant(self):
+        if self.energy_level >= 3*self.energy_level_init:
+            return True
+        else :
+            return False
+
+    def give_birth(self):
+        self.energy_level -= self.energy_level_init
+        child = Cell(int(self.posx), int(self.posy))
+        return child
+
+    

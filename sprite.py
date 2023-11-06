@@ -18,6 +18,7 @@ class Sprite:
 
     '''
     def __init__(self, img_name : str, posx=None, posy=None):
+        self.img_name = img_name
         self.img_init = pygame.image.load("lib/"+img_name).convert_alpha()
         self.img = pygame.image.load("lib/"+img_name).convert_alpha()
         self.mask = pygame.mask.from_surface(self.img)
