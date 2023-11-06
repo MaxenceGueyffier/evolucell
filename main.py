@@ -24,7 +24,7 @@ class App:
         self.clock = pygame.time.Clock()
         self.pool_cell = np.array([])
         self.pool_food = np.array([])
-        self.quadtree_test = np.array([])
+        #self.quadtree_test = np.array([])
 
     def on_init(self):
         #pygame features
@@ -89,30 +89,39 @@ class App:
                     if self.pool_food[index].pos == food.pos :
                         self.pool_food = np.delete(self.pool_food, [index])
                         break
-
+        
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_z:
-                self.pool_cell[0].move_forward()
-            if event.key == pygame.K_s:
-                self.pool_cell[0].move_backward()
-            if event.key == pygame.K_q:
-                self.pool_cell[0].turn_left()
-            if event.key == pygame.K_d:
-                self.pool_cell[0].turn_right()
+            if len(self.pool_cell) != 0 :
+                if event.key == pygame.K_z:
+                    self.pool_cell[0].move_forward()
+                if event.key == pygame.K_s:
+                    self.pool_cell[0].move_backward()
+                if event.key == pygame.K_q:
+                    self.pool_cell[0].turn_left()
+                if event.key == pygame.K_d:
+                    self.pool_cell[0].turn_right()
             
     def on_loop(self):
         self.clock.tick(FPS)
         clear_surface(self.debug_screen)
+        for cindex in range(len(self.pool_cell)) :
+            self.pool_cell[cindex].decrease_energy()
+            
+            list_object_colision=is_colision(self.pool_cell[cindex], Food, self.quadtree)
+            list_object_colision = np.reshape(list_object_colision, (-1,2))
+            for food_x, food_y in list_object_colision:
+                self.quadtree.delete((food_x, food_y))
+                for index in range(len(self.pool_food)):
+                    if self.pool_food[index].pos == (food_x, food_y):
+                        self.pool_food = np.delete(self.pool_food, [index])
+                        self.pool_cell[cindex].eat()
+                        print(self.pool_cell[cindex].energy_level)
+                        break
 
-        list_object_colision=is_colision(self.pool_cell[0], Food, self.quadtree)
-        list_object_colision = np.reshape(list_object_colision, (-1,2))
-        for food_x, food_y in list_object_colision:
-            self.quadtree.delete((food_x, food_y))
-            for index in range(len(self.pool_food)):
-                if self.pool_food[index].pos == (food_x, food_y):
-                    self.pool_food = np.delete(self.pool_food, [index])
-                    break
-        self.quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
+            if self.pool_cell[cindex].is_dead():
+                self.pool_cell = np.delete(self.pool_cell, [cindex])
+                print(f'cell n°{cindex} is dead')
+        #self.quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
 
         pygame.display.flip()
 

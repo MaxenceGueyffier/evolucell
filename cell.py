@@ -5,7 +5,7 @@ from common.default import *
 
 
 class Cell(Sprite): 
-    weight = 1.0
+    energy_level = 100
     speed = 5
     angular_speed = 5
     direction = 0
@@ -58,9 +58,18 @@ class Cell(Sprite):
             if future_posy-future_height/2 >= 0 and future_posy+future_height/2 <= SCREEN_HEIGHT :
                 return True
         return False
+    
+    def eat(self):
+        self.energy_level += 50
+        
+    def decrease_energy(self):
+        self.energy_level -= 0.5
 
     def give_birth():
         pass
 
-    def die():
-        pass
+    def is_dead(self):
+        if self.energy_level <= 0:
+            return True
+        else :
+            return False
