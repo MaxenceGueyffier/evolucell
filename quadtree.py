@@ -96,24 +96,22 @@ class Quadtree:
 
     def insert(self, particle):
         """add a particle (which is a tuple of coordinate) to this Quadtree. Return True if it worked and False otherwise"""
-
         #if this particle already exists, delete it
-        #we return an error message if it's a slightly different because it could create an infinte loop while trying to split the quadtree into smaller and smaller sub_quadtree 
         if(self.subdivision == 0):
             if len(self.particles)!=0 :
                 if contain_approximatively(particle, self.particles):
                     if not self.delete(particle) :
+                        #we return an error message if it's a slightly different because it could create an infinte loop while trying to add the particle and so spliting the quadtree into smaller and smaller sub_quadtree 
                         print("ERROR: couldn't add this particle")
+                    #job has failed
                     return False
-        
         #check if you're in the right Quadtree
         if self.boundary.containsParticle(particle) == False:
+            #job has failed
             return False
-        
         #add particle to the list of particles with the right format
         self.particles = np.append(self.particles, (particle))
         self.particles = np.reshape(self.particles, (-1, 2))
-
         #if the Quadtree is not out of capacity yet
         if len(self.particles) > self.capacity:
             #if it's the first time the Quadtree is out of capacity, then subdivide it
@@ -124,7 +122,7 @@ class Quadtree:
             else:
                 for subqt in [self.northWest, self.northEast, self.southWest, self.southEast]:
                     subqt.insert(particle)
-            
+        #job is done    
         return True
 
     def unify (self):
@@ -135,24 +133,35 @@ class Quadtree:
         self.northEast = None
 
     def delete(self, particle):
-        """delete a particle (which is a tuple of coordinate) from this Quadtree. Return True if it worked and False otherwise"""        
+        """delete a particle (which is a tuple of coordinate) from this Quadtree. Return True if it worked and False otherwise""" 
+        #for each particle       
         for i in range(len(self.particles)-1, -1, -1):
+            #if its coordinates are the same as the one we need to delete
             if self.particles[i][0]==particle[0] and self.particles[i][1]==particle[1]:
+                #delete it
                 self.particles = np.delete(np.reshape(self.particles,(-1,2)), i, 0)
+                #if the quadtree has a subdivision
                 if self.northWest != None :
+                    #for each subquadtree
                     for subqt in [self.northWest, self.northEast, self.southWest, self.southEast]:
+                        #check if the subquadtree contains the particle
                         if subqt.boundary.containsParticle(particle) :
+                            #if the curent quadtre (not the subquadtree) has reached it limit 
                             if len(self.particles) <= self.capacity:
+                                #delete all the subquadtrees
                                 self.unify()
+                                #initialize out_of_capacity
                                 self.out_of_capacity = False
                             else:
+                                #otherwise just call the function delete() in the subquadtree
                                 subqt.delete(particle)
+                            #job is done
                             return True
+        #job has failed
         return False            
         
-
-    #reveal each Quadtree
     def show(self, screen, color=(0,0,0)):
+        """reveal each Quadtree"""
         if self.northWest != None:
             self.northWest.show(screen, color)
             self.northEast.show(screen, color)
@@ -162,11 +171,11 @@ class Quadtree:
             self.boundary.Draw(screen, color)
 
 
-    """
-    get the last quadtree to which the particle would have been assigned
-    depth_max : only allows Quadtree with a maximal level of subdivision, a negative value means no maximal depth 
-    """
+    
     def get_last_quadtree(self, particle, depth_max:int = -1):
+        """get the last quadtree to which the particle should be assigned
+        depth_max : only allows Quadtree with a maximal level of subdivision, a negative value means no maximal depth 
+        """
         if (depth_max>=0 and self.subdivision!=depth_max) or depth_max<0 :
             if self.northWest != None :
                 if self.northWest.boundary.containsParticle(particle):

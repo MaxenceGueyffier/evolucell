@@ -15,7 +15,8 @@ class Rectangle:
         self.color = color
         self.line_thickness = line_thickness
 
-    def containsParticle(self, particle):     
+    def containsParticle(self, particle):
+        """if the particle (which is a tuple) is inside the boundaries of the rectangle"""   
         (x_particle, y_particle) = particle
         if x_particle >= self.x and x_particle <= self.x+self.width and y_particle >= self.y and y_particle <= self.y+self.height:
             return True
@@ -23,6 +24,7 @@ class Rectangle:
             return False
 
     def Draw(self, screen, color=(0,0,0)):
+        """dislpay the rect on the screen"""
         self.color = color
         pygame.draw.rect(screen, self.color, [self.x, self.y, self.width, self.height], self.line_thickness)
         
