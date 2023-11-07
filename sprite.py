@@ -1,5 +1,5 @@
 import pygame
-from common.default import *
+from common.globals import *
 import random
 
 

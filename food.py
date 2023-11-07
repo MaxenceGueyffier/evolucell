@@ -1,5 +1,5 @@
 import pygame
-import common.default as default
+import common.globals as globals
 import random
 from sprite import Sprite
 

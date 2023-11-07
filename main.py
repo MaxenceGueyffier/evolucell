@@ -3,7 +3,7 @@ os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 from pygame.locals import *
 from common.color import *
-from common.default import *
+import common.globals as globals
 from cell import Cell
 from food import Food
 from quadtree import Quadtree
@@ -15,12 +15,12 @@ import time
 def clear_surface(surface):
         surface.fill([0,0,0,0])
 
- 
+
 class App:
     def __init__(self):
         self._running = True
         self.screen = None
-        self.size = SCREEN_WIDTH, SCREEN_HEIGHT
+        self.size = globals.SCREEN_WIDTH, globals.SCREEN_HEIGHT
         self.clock = pygame.time.Clock()
         self.pool_cell = np.array([])
         self.pool_food = np.array([])
@@ -32,6 +32,8 @@ class App:
         #pygame features
         pygame.init()
         pygame.display.set_caption('Evolucell')
+        pygame.font.init()
+        self.my_font = pygame.font.SysFont('Arial', 15)
         pygame.key.set_repeat(150,50)
         self.clock = pygame.time.Clock()
 
@@ -40,19 +42,19 @@ class App:
         self.screen.fill(color.background) 
 
         #debug screen
-        self.debug_screen = pygame.surface.Surface((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.SRCALPHA, 32)
+        self.debug_screen = pygame.surface.Surface((globals.SCREEN_WIDTH,globals.SCREEN_HEIGHT), pygame.SRCALPHA, 32)
         self.debug_screen.convert_alpha()
 
         #food screen
-        self.food_screen = pygame.surface.Surface((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.SRCALPHA, 32)
+        self.food_screen = pygame.surface.Surface((globals.SCREEN_WIDTH,globals.SCREEN_HEIGHT), pygame.SRCALPHA, 32)
         self.food_screen.convert_alpha()
 
         #cell_screen
-        self.cell_screen = pygame.surface.Surface((SCREEN_WIDTH,SCREEN_HEIGHT), pygame.SRCALPHA, 32)
+        self.cell_screen = pygame.surface.Surface((globals.SCREEN_WIDTH,globals.SCREEN_HEIGHT), pygame.SRCALPHA, 32)
         self.food_screen.convert_alpha()
 
         #first quadtree
-        boundary = Rectangle(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, color.boudaries_quadtree)
+        boundary = Rectangle(0,0, globals.SCREEN_WIDTH, globals.SCREEN_HEIGHT, color.boudaries_quadtree)
         self.quadtree = Quadtree(2, boundary)
     
         #launching food
@@ -106,21 +108,27 @@ class App:
                     self.pool_cell[0].turn_left()
                 if event.key == pygame.K_d:
                     self.pool_cell[0].turn_right()
+                if event.key == pygame.K_p:
+                    increase_speed()
+                    for cell in self.pool_cell:
+                        cell.update_speed(globals.time_speed)
+                if event.key == pygame.K_m:
+                    decrease_speed()
+                    for cell in self.pool_cell:
+                        cell.update_speed(globals.time_speed)
 
 
 
     def on_loop(self):
         #tick every frame
-        self.clock.tick(FPS)
+        self.clock.tick(globals.FPS)
         clear_surface(self.debug_screen)
 
         cindex = 0
         while cindex < len(self.pool_cell) and cindex >= 0:
-            
+
             #if a cell is dead, delete it from the the list cell_pool
-            print(self.pool_cell[0].energy_level)
             if self.pool_cell[cindex].is_dead():
-                print(len(self.pool_cell))
                 self.pool_cell = np.delete(self.pool_cell, [cindex])
                 print(f'cell n°{cindex} is dead')
                 #update beacause the length of pool_cell has changed
@@ -161,6 +169,9 @@ class App:
         # self.quadtree.show(self.debug_screen)
         # for qt in self.quadtree_test :
         #     qt.show(self.debug_screen, (255,0,0))
+        clear_surface(self.debug_screen)
+        time_surface = self.my_font.render(str(globals.time_speed), False, (0, 0, 0))
+        self.debug_screen.blit(time_surface, (0,0))
 
         #print each food on food_screen
         clear_surface(self.food_screen)

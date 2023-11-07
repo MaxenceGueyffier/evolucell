@@ -1,14 +1,14 @@
 import pygame
 import math
 from sprite import Sprite
-from common.default import *
+from common.globals import *
 
 
 class Cell(Sprite): 
     energy_level_init = 100
     energy_level = energy_level_init
-    speed = 5
-    angular_speed = 5
+    speed = 5*time_speed
+    angular_speed = 5*time_speed
     direction = 0
     posx = None
     posy = None
@@ -83,4 +83,7 @@ class Cell(Sprite):
         child = Cell(int(self.posx), int(self.posy))
         return child
 
-    
+    def update_speed(self, ts):
+        """modify the speed according to the timespeed ts"""
+        self.speed = 5*ts
+        self.angular_speed = 5*ts
