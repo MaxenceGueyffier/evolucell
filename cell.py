@@ -1,14 +1,14 @@
 import pygame
 import math
 from sprite import Sprite
-from common.globals import *
+import common.globals as globals
 
 
 class Cell(Sprite): 
     energy_level_init = 100
     energy_level = energy_level_init
-    speed = 5*time_speed
-    angular_speed = 5*time_speed
+    speed = 5*globals.time_speed
+    angular_speed = 5*globals.time_speed
     direction = 0
     posx = None
     posy = None
@@ -28,8 +28,8 @@ class Cell(Sprite):
             self.mask = pygame.mask.from_surface(self.img)
 
     def is_inside_boudaries(self, future_posx, future_posy, future_width, future_height):
-        if future_posx-future_width/2 >= 0 and future_posx+future_width/2 <= SCREEN_WIDTH :
-            if future_posy-future_height/2 >= 0 and future_posy+future_height/2 <= SCREEN_HEIGHT :
+        if future_posx-future_width/2 >= 0 and future_posx+future_width/2 <= globals.SCREEN_WIDTH :
+            if future_posy-future_height/2 >= 0 and future_posy+future_height/2 <= globals.SCREEN_HEIGHT :
                 return True
         return False
     
@@ -64,7 +64,7 @@ class Cell(Sprite):
         self.energy_level += 50
         
     def decrease_energy(self):
-        self.energy_level -= 0.5
+        self.energy_level -= 0.5*globals.time_speed
 
     def is_dead(self):
         if self.energy_level <= 0:
@@ -83,7 +83,7 @@ class Cell(Sprite):
         child = Cell(int(self.posx), int(self.posy))
         return child
 
-    def update_speed(self, ts):
+    def update_speed(self):
         """modify the speed according to the timespeed ts"""
-        self.speed = 5*ts
-        self.angular_speed = 5*ts
+        self.speed = 5*globals.time_speed
+        self.angular_speed = 5*globals.time_speed

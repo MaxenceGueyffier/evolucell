@@ -25,6 +25,8 @@ class App:
         self.pool_cell = np.array([])
         self.pool_food = np.array([])
         #self.quadtree_test = np.array([])
+        self.timer_food = 0
+        self.food_ratio = 3
 
 
 
@@ -58,7 +60,7 @@ class App:
         self.quadtree = Quadtree(2, boundary)
     
         #launching food
-        for i in range(100):
+        for i in range(1):
             self.pool_food = np.append(self.pool_food, Food(size=1))
             self.quadtree.insert(self.pool_food[i].pos)
         food1 = Food(500,10)
@@ -77,6 +79,57 @@ class App:
         pygame.display.flip()
         
         self._running = True
+
+    
+    def cell_handler (self):
+        cindex = 0
+        while cindex < len(self.pool_cell) and cindex >= 0:
+
+            #if a cell is dead, delete it from the the list cell_pool
+            x,y = self.pool_cell[cindex].pos
+            if self.pool_cell[cindex].is_dead():
+                self.pool_cell = np.delete(self.pool_cell, [cindex])
+                #release some food while dying
+                food1 = Food(x,y)
+                self.pool_food = np.append(self.pool_food, food1)
+                self.quadtree.insert(food1.pos)
+
+                print(f'cell n°{cindex} is dead')
+                #update beacause the length of pool_cell has changed
+                cindex -= 1
+                
+            else:
+                #decrease energy every frame
+                self.pool_cell[cindex].decrease_energy()  
+
+                #if there is any colision btwn a cell and some food, the cell eat the food
+                list_object_colision=is_colision(self.pool_cell[cindex], Food, self.quadtree)
+                list_object_colision = np.reshape(list_object_colision, (-1,2))
+                for food_x, food_y in list_object_colision:
+                    self.quadtree.delete((food_x, food_y))
+                    for index in range(len(self.pool_food)):
+                        if self.pool_food[index].pos == (food_x, food_y):
+                            self.pool_food = np.delete(self.pool_food, [index])
+                            self.pool_cell[cindex].eat()
+                            print(self.pool_cell[cindex].energy_level)
+                            break
+
+                #if a cell has enough energy, it gives birth to another cell
+                if self.pool_cell[cindex].is_pregnant():
+                    child = self.pool_cell[cindex].give_birth()
+                    self.pool_cell = np.append(self.pool_cell, child)
+
+            cindex += 1
+
+    def food_handler (self):
+        
+        if len(self.pool_cell) <= 100 :
+            current_time = pygame.time.get_ticks() 
+            if current_time - self.timer_food >= self.food_ratio*1000/globals.time_speed :
+                self.timer_food = current_time
+                self.pool_food = np.append(self.pool_food, Food(size=1))
+                self.quadtree.insert(self.pool_food[-1].pos)
+
 
 
 
@@ -108,14 +161,16 @@ class App:
                     self.pool_cell[0].turn_left()
                 if event.key == pygame.K_d:
                     self.pool_cell[0].turn_right()
-                if event.key == pygame.K_p:
-                    increase_speed()
+            if event.key == pygame.K_p:
+                increase_speed()
+                if len(self.pool_cell) != 0 :
                     for cell in self.pool_cell:
-                        cell.update_speed(globals.time_speed)
-                if event.key == pygame.K_m:
-                    decrease_speed()
+                        cell.update_speed()
+            if event.key == pygame.K_m:
+                decrease_speed()
+                if len(self.pool_cell) != 0 :
                     for cell in self.pool_cell:
-                        cell.update_speed(globals.time_speed)
+                        cell.update_speed()
 
 
 
@@ -124,39 +179,9 @@ class App:
         self.clock.tick(globals.FPS)
         clear_surface(self.debug_screen)
 
-        cindex = 0
-        while cindex < len(self.pool_cell) and cindex >= 0:
-
-            #if a cell is dead, delete it from the the list cell_pool
-            if self.pool_cell[cindex].is_dead():
-                self.pool_cell = np.delete(self.pool_cell, [cindex])
-                print(f'cell n°{cindex} is dead')
-                #update beacause the length of pool_cell has changed
-                cindex -= 1
-                
-            else:
-                #decrease energy every frame
-                self.pool_cell[cindex].decrease_energy()  
-
-                #if there is any colision btwn a cell and some food, the cell eat the food
-                list_object_colision=is_colision(self.pool_cell[cindex], Food, self.quadtree)
-                list_object_colision = np.reshape(list_object_colision, (-1,2))
-                for food_x, food_y in list_object_colision:
-                    self.quadtree.delete((food_x, food_y))
-                    for index in range(len(self.pool_food)):
-                        if self.pool_food[index].pos == (food_x, food_y):
-                            self.pool_food = np.delete(self.pool_food, [index])
-                            self.pool_cell[cindex].eat()
-                            print(self.pool_cell[cindex].energy_level)
-                            break
-
-                #if a cell has enough energy, it gives birth to another cell
-                if self.pool_cell[cindex].is_pregnant():
-                    child = self.pool_cell[cindex].give_birth()
-                    self.pool_cell = np.append(self.pool_cell, child)
-
-            cindex += 1
+        self.cell_handler()
             
+        self.food_handler()
 
         #self.quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
 
@@ -166,11 +191,12 @@ class App:
         #erase main screen
         self.screen.fill(color.background) 
 
+        #print useful data on debug_screen
+        clear_surface(self.debug_screen)
         # self.quadtree.show(self.debug_screen)
         # for qt in self.quadtree_test :
         #     qt.show(self.debug_screen, (255,0,0))
-        clear_surface(self.debug_screen)
-        time_surface = self.my_font.render(str(globals.time_speed), False, (0, 0, 0))
+        time_surface = self.my_font.render("x"+str(globals.time_speed), False, (0, 0, 0))
         self.debug_screen.blit(time_surface, (0,0))
 
         #print each food on food_screen

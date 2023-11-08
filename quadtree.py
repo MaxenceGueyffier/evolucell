@@ -100,7 +100,9 @@ class Quadtree:
         if(self.subdivision == 0):
             if len(self.particles)!=0 :
                 if contain_approximatively(particle, self.particles):
-                    if not self.delete(particle) :
+                    if self.delete(particle) :
+                        print("cell deleted")
+                    else :
                         #we return an error message if it's a slightly different because it could create an infinte loop while trying to add the particle and so spliting the quadtree into smaller and smaller sub_quadtree 
                         print("ERROR: couldn't add this particle")
                     #job has failed
@@ -114,14 +116,18 @@ class Quadtree:
         self.particles = np.reshape(self.particles, (-1, 2))
         #if the Quadtree is not out of capacity yet
         if len(self.particles) > self.capacity:
-            #if it's the first time the Quadtree is out of capacity, then subdivide it
-            if self.out_of_capacity == False :
-                self.out_of_capacity = True
-                self.subdivide()
-            #otherwise, add the particle to the correct sub-Quadtree
-            else:
-                for subqt in [self.northWest, self.northEast, self.southWest, self.southEast]:
-                    subqt.insert(particle)
+            #if it's the first time the Quadtree is out of capacity, then subdivide it, after 15 subdivision stop it to avoid infinte loop
+            if self.subdivision <= 15 :
+                if self.out_of_capacity == False:
+                    self.out_of_capacity = True
+                    self.subdivide()
+                #otherwise, add the particle to the correct sub-Quadtree
+                else:
+                    for subqt in [self.northWest, self.northEast, self.southWest, self.southEast]:
+                        subqt.insert(particle)
+            else :
+                print("ERROR : infinite subdivision")
+                return False
         #job is done    
         return True
 
