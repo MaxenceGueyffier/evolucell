@@ -60,7 +60,7 @@ class App:
         self.quadtree = Quadtree(2, boundary)
     
         #launching food
-        for i in range(1):
+        for i in range(globals.initial_qtt_of_food):
             self.pool_food = np.append(self.pool_food, Food(size=1))
             self.quadtree.insert(self.pool_food[i].pos)
         food1 = Food(500,10)
@@ -94,7 +94,7 @@ class App:
                 self.pool_food = np.append(self.pool_food, food1)
                 self.quadtree.insert(food1.pos)
 
-                print(f'cell n°{cindex} is dead')
+                #print(f'cell n°{cindex} is dead')
                 #update beacause the length of pool_cell has changed
                 cindex -= 1
                 
@@ -111,7 +111,7 @@ class App:
                         if self.pool_food[index].pos == (food_x, food_y):
                             self.pool_food = np.delete(self.pool_food, [index])
                             self.pool_cell[cindex].eat()
-                            print(self.pool_cell[cindex].energy_level)
+                            #print(self.pool_cell[cindex].energy_level)
                             break
 
                 #if a cell has enough energy, it gives birth to another cell
@@ -119,11 +119,14 @@ class App:
                     child = self.pool_cell[cindex].give_birth()
                     self.pool_cell = np.append(self.pool_cell, child)
 
+                #random walk
+                self.pool_cell[cindex].random_walk()
+
             cindex += 1
 
     def food_handler (self):
-        
-        if len(self.pool_cell) <= 100 :
+
+        if self.pool_food.size <= globals.initial_qtt_of_food :
             current_time = pygame.time.get_ticks() 
             if current_time - self.timer_food >= self.food_ratio*1000/globals.time_speed :
                 self.timer_food = current_time
@@ -196,7 +199,8 @@ class App:
         # self.quadtree.show(self.debug_screen)
         # for qt in self.quadtree_test :
         #     qt.show(self.debug_screen, (255,0,0))
-        time_surface = self.my_font.render("x"+str(globals.time_speed), False, (0, 0, 0))
+        sentence_speed = "x"+str(globals.time_speed)+" : "+str(int(self.clock.get_fps()))+" FPS"
+        time_surface = self.my_font.render(sentence_speed, False, (0, 0, 0))
         self.debug_screen.blit(time_surface, (0,0))
 
         #print each food on food_screen

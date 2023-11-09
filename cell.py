@@ -1,6 +1,7 @@
 import pygame
 import math
 from sprite import Sprite
+from random import choice, randint
 import common.globals as globals
 
 
@@ -17,6 +18,20 @@ class Cell(Sprite):
 
     def __init__(self, posx=None, posy=None):
         super().__init__("body.png", posx, posy)
+
+    def random_walk(self):
+        moves = ["forward"]*40 + ["left"]*25 + ["right"]*25 + ["backward"]*10
+        move = choice(moves)
+
+        if move == "forward":
+            self.move_forward()
+        elif move == "left":
+            self.turn_left()
+        elif move == "right":
+            self.turn_right()
+        else :
+            self.move_backward()
+
 
     def move_forward (self):
         future_posx = self.posx + self.speed*math.cos(math.radians(self.direction))
@@ -81,6 +96,8 @@ class Cell(Sprite):
     def give_birth(self):
         self.energy_level -= self.energy_level_init
         child = Cell(int(self.posx), int(self.posy))
+        child.direction = randint(0,360)
+        child.update_speed()
         return child
 
     def update_speed(self):
