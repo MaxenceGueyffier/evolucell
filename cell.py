@@ -15,9 +15,11 @@ class Cell(Sprite):
     posy = None
     width = None
     height = None
+    color_variation = (0,0,0)
 
     def __init__(self, posx=None, posy=None):
         super().__init__("body.png", posx, posy)
+        self.generation = 0
 
     def random_walk(self):
         moves = ["forward"]*40 + ["left"]*25 + ["right"]*25 + ["backward"]*10
@@ -96,11 +98,42 @@ class Cell(Sprite):
     def give_birth(self):
         self.energy_level -= self.energy_level_init
         child = Cell(int(self.posx), int(self.posy))
+        child.generation = self.generation+1
+        child.evolve()
         child.direction = randint(0,360)
         child.update_speed()
         return child
+    
+    def evolve(self):
+        list_evolution = ["red"]+["blue"]+["green"]+["no evolution"]*7
+        choice_criterion = choice(list_evolution)
+
+        (r,g,b) = self.color_variation
+        if choice_criterion == "red":
+            r = r+randint(-50,50)
+            self.color_variation = (r,g,b)
+
+        elif choice_criterion == "blue":
+            g = g+randint(-50,50)
+            self.color_variation = (r,g,b)
+
+        elif choice_criterion == "green":
+            b = b+randint(-50,50)
+            self.color_variation = (r,g,b)
+
+        
+        if choice_criterion != "no evolution" :
+            print("____"+choice_criterion)
+            print(self.color_variation)
+            print(self.generation)
+
+
+        self.color = self.shift_color(self.color_variation)
+
+        
 
     def update_speed(self):
         """modify the speed according to the timespeed ts"""
         self.speed = 5*globals.time_speed
         self.angular_speed = 5*globals.time_speed
+
