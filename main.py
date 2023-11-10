@@ -86,8 +86,10 @@ class App:
         while cindex < len(self.pool_cell) and cindex >= 0:
 
             #if a cell is dead, delete it from the the list cell_pool
-            x,y = self.pool_cell[cindex].pos
+            x = int(self.pool_cell[cindex].posx)
+            y = int(self.pool_cell[cindex].posy)
             if self.pool_cell[cindex].is_dead():
+                print(x,y)
                 self.pool_cell = np.delete(self.pool_cell, [cindex])
                 #release some food while dying
                 food1 = Food(x,y)
@@ -141,17 +143,12 @@ class App:
         if event.type == pygame.QUIT:
             self._running = False
 
-        #press the mouse somewhere on the screen to add/delete food
+        #press the mouse somewhere on the screen to add cell
         if event.type == pygame.MOUSEBUTTONDOWN:
             x, y = pygame.mouse.get_pos()
-            food = Food(x,y,1)
-            if self.quadtree.insert(food.pos) :
-                self.pool_food = np.append(self.pool_food, food)
-            else:
-                for index in range(len(self.pool_food)):
-                    if self.pool_food[index].pos == food.pos :
-                        self.pool_food = np.delete(self.pool_food, [index])
-                        break
+            cell = Cell(x,y)
+            if self.quadtree.insert(cell.pos) :
+                self.pool_cell = np.append(self.pool_cell, cell)
         
         #use zqsd keys to move the cell
         if event.type == pygame.KEYDOWN:
