@@ -1,7 +1,8 @@
 import pygame
-from rectangle import *
 import numpy as np
 from functools import total_ordering
+
+from .rectangle import *
 
 def contain_approximatively(nptup,nparray):
     """check if the particule or a slightly different is already in the quadtree"""

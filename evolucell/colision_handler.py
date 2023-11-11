@@ -1,12 +1,13 @@
-from sprite import Sprite
-from quadtree import Quadtree
 import numpy as np
-from common.globals import *
 import pygame
 
+from .sprite import Sprite
+from .quadtree import Quadtree
+from .common import globals as globals
+
 def get_maximal_depth(sprite) :
-    w = SCREEN_WIDTH
-    h = SCREEN_HEIGHT
+    w = globals.SCREEN_WIDTH
+    h = globals.SCREEN_HEIGHT
     depth = -1
     while sprite.width < w and sprite.height < h :
         w /= 2

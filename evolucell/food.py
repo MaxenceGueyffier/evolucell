@@ -1,7 +1,8 @@
 import pygame
-import common.globals as globals
 import random
-from sprite import Sprite
+
+from .common import globals as globals
+from .sprite import Sprite
 
 
  

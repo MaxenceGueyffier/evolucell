@@ -1,9 +1,10 @@
 import pygame
 import math
-from sprite import Sprite
-from random import choice, randint
-import common.globals as globals
 from copy import deepcopy
+from random import choice, randint
+
+from .sprite import Sprite
+from .common import globals as globals
 
 
 class Cell(Sprite): 
