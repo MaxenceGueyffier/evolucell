@@ -3,6 +3,7 @@ import math
 from sprite import Sprite
 from random import choice, randint
 import common.globals as globals
+from copy import deepcopy
 
 
 class Cell(Sprite): 
@@ -12,7 +13,6 @@ class Cell(Sprite):
         self.generation = 0
         self.direction = 0
         self.size = 1
-
         if not genetical_features==None:
             self.genetical_features = genetical_features
         else :
@@ -20,6 +20,7 @@ class Cell(Sprite):
                 "color_variation" : (0,0,0),
                 "size_variation" : 1,
             }
+        #adapt features according to genetical_features
         self.shift_color(self.genetical_features["color_variation"])
         self.change_size(self.genetical_features["size_variation"])
         self.energy_level_init = int(100/(self.size**2))
@@ -48,12 +49,6 @@ class Cell(Sprite):
             self.posy = future_posy
             self.rect = self.img.get_rect(center = self.img.get_rect(center = (self.posx, self.posy)).center)
             self.mask = pygame.mask.from_surface(self.img)
-
-    def is_inside_boudaries(self, future_posx, future_posy, future_width, future_height):
-        if future_posx-future_width/2 >= 0 and future_posx+future_width/2 <= globals.SCREEN_WIDTH :
-            if future_posy-future_height/2 >= 0 and future_posy+future_height/2 <= globals.SCREEN_HEIGHT :
-                return True
-        return False
     
     def move_backward (self):
         self.direction -= 180
@@ -71,6 +66,7 @@ class Cell(Sprite):
         self.turn(future_direction)
 
     def turn(self, future_direction):
+        """use only after turn_left or turn_right"""
         future_direction = future_direction % 360
         future_img = pygame.transform.rotate(self.img_init, future_direction)
         future_width, future_height = future_img.get_size()
@@ -82,72 +78,79 @@ class Cell(Sprite):
             self.rect = self.img.get_rect(center = self.img.get_rect(center = (self.posx, self.posy)).center) 
             self.mask = pygame.mask.from_surface(self.img)
     
+    def is_inside_boudaries(self, future_posx, future_posy, future_width, future_height):
+        """check if a cell will still be inside the boundaries of the screen"""
+        if future_posx-future_width/2 >= 0 and future_posx+future_width/2 <= globals.SCREEN_WIDTH :
+            if future_posy-future_height/2 >= 0 and future_posy+future_height/2 <= globals.SCREEN_HEIGHT :
+                return True
+        return False
+    
     def eat(self):
+        """increase the energy of the cell"""
         self.energy_level += 50
         
     def decrease_energy(self):
+        """decrease the energy of the cell"""
         self.energy_level -= 0.5*globals.time_speed
 
     def is_dead(self):
+        """if the cell as not enough energy to survive return True, else return False"""
         if self.energy_level <= 0:
             return True
         else :
             return False
         
     def is_pregnant(self):
+        """if the cell as enough energy to evolve return True, else return False"""
         if self.energy_level >= 3*self.energy_level_init:
             return True
         else :
             return False
 
     def give_birth(self):
+        """create a new cell with a slight proability to evolve"""
         #energy needed to give_birth
         self.energy_level -= self.energy_level_init
         #change child's features
-        child_features = self.genetical_features
+        print("____________")
+        child_features = deepcopy(self.genetical_features)
         feature_name, feature_value = self.feature_to_evolve()
         child_features[feature_name] = feature_value
-
+        #create the child, a new cell
         child = Cell(int(self.posx), int(self.posy), child_features)
+        #increase generation
         child.generation = self.generation+1
+        #chose a random direction
         child.direction = randint(0,360)
         return child
     
     def feature_to_evolve(self):
+        """select a feature to evolve, return its name and its new value"""
+        #list every evolution possible and its weight
         list_evolution = ["red"]+["blue"]+["green"]+["size_variation"]+["no_evolution"]*100
+        #chose one of them
         choice_criterion = choice(list_evolution)
-        print(choice_criterion)
 
+        #select a random color to modify to a random value
         (r,g,b) = self.genetical_features["color_variation"]
         if choice_criterion == "red":
-            r = r+randint(-1,1)*50
+            r = r+randint(-50,50)
             return "color_variation", (r,g,b)
-
         elif choice_criterion == "blue":
-            g = g+randint(-1,1)*50
+            g = g+randint(-50,50)
             return "color_variation", (r,g,b)
-
         elif choice_criterion == "green":
-            b = b+randint(-1,1)*50
+            b = b+randint(-50,50)
             return "color_variation", (r,g,b)
-
+        #change size
         elif choice_criterion == "size_variation" :
             coef = randint(8, 14)/10
             return "size_variation", coef
             # self.change_size(coef)
             # self.update_speed()
-
+        #no evolution
         else :
             return "no_evolution", None
-            
-
-
-        
-        # if choice_criterion != "no evolution" :
-        #     print("____"+choice_criterion)
-        #     print(self.color_variation)
-        #     print(self.generation)
-
 
 
     def change_size(self, coef):
