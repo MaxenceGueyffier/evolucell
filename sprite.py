@@ -31,10 +31,13 @@ class Sprite:
         else :
             #if there is one, check first if it is valid
             if isinstance(posx, int) and isinstance(posy, int) :
-                if posx>=(int(self.width/2)) and posx<=(SCREEN_WIDTH-int(self.width/2)):
-                    if posy>=(int(self.height/2)) and posy<=(SCREEN_HEIGHT-int(self.height/2)):
-                        self.posx = posx
-                        self.posy = posy
+                if posx>=(int(self.width/2)) and posx<=(SCREEN_WIDTH-int(self.width/2)) and posy>=(int(self.height/2)) and posy<=(SCREEN_HEIGHT-int(self.height/2)):
+                    self.posx = posx
+                    self.posy = posy
+                else :
+                    print("ERROR : location type isn't correct, random location used instead")
+                    self.posx = random.randrange(int(self.width/2),SCREEN_WIDTH-int(self.width/2))
+                    self.posy = random.randrange(int(self.width/2),SCREEN_HEIGHT-int(self.width/2))
             #if the format is incorrect, return an error message and define the location as the center of the screen
             else:
                 print("ERROR : location type isn't correct, random location used instead")

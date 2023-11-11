@@ -26,7 +26,7 @@ class App:
         self.pool_food = np.array([])
         #self.quadtree_test = np.array([])
         self.timer_food = 0
-        self.food_ratio = 3
+        self.food_ratio = 1
 
 
 
@@ -89,7 +89,6 @@ class App:
             x = int(self.pool_cell[cindex].posx)
             y = int(self.pool_cell[cindex].posy)
             if self.pool_cell[cindex].is_dead():
-                print(x,y)
                 self.pool_cell = np.delete(self.pool_cell, [cindex])
                 #release some food while dying
                 food1 = Food(x,y)
@@ -101,6 +100,7 @@ class App:
                 cindex -= 1
                 
             else:
+                
                 #decrease energy every frame
                 self.pool_cell[cindex].decrease_energy()  
 
