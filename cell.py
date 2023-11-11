@@ -8,10 +8,10 @@ from copy import deepcopy
 
 class Cell(Sprite): 
 
-    def __init__(self, posx=None, posy=None, genetical_features=None):
+    def __init__(self, posx=None, posy=None, genetical_features=None, generation=0):
         super().__init__("body.png", posx, posy)
-        self.generation = 0
-        self.direction = 0
+        self.generation = generation
+        self.direction = randint(0,360)
         self.size = 1
         if not genetical_features==None:
             self.genetical_features = genetical_features
@@ -26,9 +26,11 @@ class Cell(Sprite):
         self.energy_level_init = int(100/(self.size**2))
         self.energy_level = self.energy_level_init
         self.update_speed()
+        print(self.generation)
 
 
     def random_walk(self):
+        """move randomly"""
         moves = ["forward"]*40 + ["left"]*25 + ["right"]*25 + ["backward"]*10
         move = choice(moves)
 
@@ -112,16 +114,13 @@ class Cell(Sprite):
         #energy needed to give_birth
         self.energy_level -= self.energy_level_init
         #change child's features
-        print("____________")
         child_features = deepcopy(self.genetical_features)
         feature_name, feature_value = self.feature_to_evolve()
         child_features[feature_name] = feature_value
         #create the child, a new cell
-        child = Cell(int(self.posx), int(self.posy), child_features)
+        child = Cell(int(self.posx), int(self.posy), child_features, self.generation+1)
         #increase generation
-        child.generation = self.generation+1
         #chose a random direction
-        child.direction = randint(0,360)
         return child
     
     def feature_to_evolve(self):
@@ -144,10 +143,8 @@ class Cell(Sprite):
             return "color_variation", (r,g,b)
         #change size
         elif choice_criterion == "size_variation" :
-            coef = randint(8, 14)/10
+            coef = randint(7, 15)/10
             return "size_variation", coef
-            # self.change_size(coef)
-            # self.update_speed()
         #no evolution
         else :
             return "no_evolution", None
