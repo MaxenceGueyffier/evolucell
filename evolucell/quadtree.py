@@ -100,21 +100,20 @@ class Quadtree:
         #if this particle already exists, delete it
         if(self.subdivision == 0):
             if len(self.particles)!=0 :
-                if contain_approximatively(particle, self.particles):
-                    if self.delete(particle) :
-                        print("cell deleted")
-                    else :
-                        #we return an error message if it's a slightly different because it could create an infinte loop while trying to add the particle and so spliting the quadtree into smaller and smaller sub_quadtree 
-                        print("ERROR: couldn't add this particle")
+                if contain(particle, self.particles):
+                    print("cell already there")
                     #job has failed
                     return False
+                
         #check if you're in the right Quadtree
         if self.boundary.containsParticle(particle) == False:
             #job has failed
             return False
+        
         #add particle to the list of particles with the right format
         self.particles = np.append(self.particles, (particle))
         self.particles = np.reshape(self.particles, (-1, 2))
+
         #if the Quadtree is not out of capacity yet
         if len(self.particles) > self.capacity:
             #if it's the first time the Quadtree is out of capacity, then subdivide it, after 15 subdivision stop it to avoid infinte loop
@@ -127,6 +126,7 @@ class Quadtree:
                     for subqt in [self.northWest, self.northEast, self.southWest, self.southEast]:
                         subqt.insert(particle)
             else :
+                self.delete(particle)
                 print("ERROR : infinite subdivision")
                 return False
         #job is done    
@@ -148,7 +148,7 @@ class Quadtree:
                 #delete it
                 self.particles = np.delete(np.reshape(self.particles,(-1,2)), i, 0)
                 #if the quadtree has a subdivision
-                if self.northWest != None :
+                if self.northWest != None:
                     #for each subquadtree
                     for subqt in [self.northWest, self.northEast, self.southWest, self.southEast]:
                         #check if the subquadtree contains the particle

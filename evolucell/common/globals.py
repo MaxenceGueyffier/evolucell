@@ -4,7 +4,7 @@ SCREEN_HEIGHT = 600
 FPS = 30
 
 time_speed = 1
-initial_qtt_of_food = 500
+
 
 
 def increase_speed():

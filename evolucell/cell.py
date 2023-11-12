@@ -27,7 +27,6 @@ class Cell(Sprite):
         self.energy_level_init = int(100/(self.size**2))
         self.energy_level = self.energy_level_init
         self.update_speed()
-        print(self.generation)
 
 
     def random_walk(self):
@@ -117,6 +116,8 @@ class Cell(Sprite):
         #change child's features
         child_features = deepcopy(self.genetical_features)
         feature_name, feature_value = self.feature_to_evolve()
+        if feature_name != "no_evolution":
+            print("mutation ! "+feature_name+" : "+str(self.genetical_features[feature_name])+" -> "+str(feature_value))
         child_features[feature_name] = feature_value
         #create the child, a new cell
         child = Cell(int(self.posx), int(self.posy), child_features, self.generation+1)
@@ -127,7 +128,7 @@ class Cell(Sprite):
     def feature_to_evolve(self):
         """select a feature to evolve, return its name and its new value"""
         #list every evolution possible and its weight
-        list_evolution = ["red"]+["blue"]+["green"]+["size_variation"]+["no_evolution"]*100
+        list_evolution = ["red"]+["blue"]+["green"]+["size_variation"]*3+["no_evolution"]*100
         #chose one of them
         choice_criterion = choice(list_evolution)
 

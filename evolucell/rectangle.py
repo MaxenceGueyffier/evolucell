@@ -18,7 +18,7 @@ class Rectangle:
     def containsParticle(self, particle):
         """if the particle (which is a tuple) is inside the boundaries of the rectangle"""   
         (x_particle, y_particle) = particle
-        if x_particle >= self.x and x_particle <= self.x+self.width and y_particle >= self.y and y_particle <= self.y+self.height:
+        if x_particle >= self.x and x_particle < self.x+self.width and y_particle >= self.y and y_particle < self.y+self.height:
             return True
         else:
             return False

@@ -1,14 +1,13 @@
 import os
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
-from pygame.locals import *
 import numpy as np
 
 from .common.color import *
 from .common import globals as globals
 from .cell import Cell
 from .food import Food
-from .quadtree import Quadtree
+from .quadtree import Quadtree, contain
 from .rectangle import Rectangle
 from .colision_handler import *
 
@@ -26,7 +25,9 @@ class App:
         self.pool_food = np.array([])
         #self.quadtree_test = np.array([])
         self.timer_food = 0
-        self.food_ratio = 1
+        self.wait_for_food = 0
+        self.initial_qtt_of_food = 500
+        
 
 
 
@@ -46,6 +47,7 @@ class App:
         #debug screen
         self.debug_screen = pygame.surface.Surface((globals.SCREEN_WIDTH,globals.SCREEN_HEIGHT), pygame.SRCALPHA, 32)
         self.debug_screen.convert_alpha()
+        self.pool_test = np.array([])
 
         #food screen
         self.food_screen = pygame.surface.Surface((globals.SCREEN_WIDTH,globals.SCREEN_HEIGHT), pygame.SRCALPHA, 32)
@@ -60,14 +62,14 @@ class App:
         self.quadtree = Quadtree(2, boundary)
     
         #launching food
-        for i in range(globals.initial_qtt_of_food):
+        for i in range(self.initial_qtt_of_food):
             self.pool_food = np.append(self.pool_food, Food(size=1))
             self.quadtree.insert(self.pool_food[i].pos)
         food1 = Food(500,10)
         self.pool_food = np.append(self.pool_food, food1)
         self.quadtree.insert(food1.pos)
 
-        #self.quadtree.show(self.screen)
+        self.quadtree.show(self.screen)
 
         #launching cell
         cell1 = Cell(500,300)
@@ -95,7 +97,6 @@ class App:
                 self.pool_food = np.append(self.pool_food, food1)
                 self.quadtree.insert(food1.pos)
 
-                #print(f'cell n°{cindex} is dead')
                 #update beacause the length of pool_cell has changed
                 cindex -= 1
                 
@@ -108,13 +109,16 @@ class App:
                 list_object_colision=is_colision(self.pool_cell[cindex], Food, self.quadtree)
                 list_object_colision = np.reshape(list_object_colision, (-1,2))
                 for food_x, food_y in list_object_colision:
-                    self.quadtree.delete((food_x, food_y))
-                    for index in range(len(self.pool_food)):
-                        if self.pool_food[index].pos == (food_x, food_y):
-                            self.pool_food = np.delete(self.pool_food, [index])
-                            self.pool_cell[cindex].eat()
-                            #print(self.pool_cell[cindex].energy_level)
-                            break
+                    if not self.quadtree.delete((food_x, food_y)):
+                        print("ERROR : food couldn't be deleted",food_x, food_y)
+                        f_test = Food(int(food_x), int(food_y))
+                        self.pool_test = np.append(self.pool_test, f_test)
+                    else :
+                        for index in range(len(self.pool_food)):
+                            if self.pool_food[index].pos == (food_x, food_y):
+                                self.pool_food = np.delete(self.pool_food, [index])
+                                self.pool_cell[cindex].eat()
+                                break
 
                 #if a cell has enough energy, it gives birth to another cell
                 if self.pool_cell[cindex].is_pregnant():
@@ -127,13 +131,16 @@ class App:
             cindex += 1
 
     def food_handler (self):
-
-        if self.pool_food.size <= globals.initial_qtt_of_food :
+        if self.pool_food.size <= self.initial_qtt_of_food :
             current_time = pygame.time.get_ticks() 
-            if current_time - self.timer_food >= self.food_ratio*1000/globals.time_speed :
+            if current_time - self.timer_food >= self.wait_for_food*1000/globals.time_speed :
                 self.timer_food = current_time
-                self.pool_food = np.append(self.pool_food, Food(size=1))
-                self.quadtree.insert(self.pool_food[-1].pos)
+                f = Food(size=1)
+                if self.quadtree.insert(f.pos) :
+                    self.pool_food = np.append(self.pool_food, f)
+
+
+                
 
 
 
@@ -145,11 +152,22 @@ class App:
 
         #press the mouse somewhere on the screen to add cell
         if event.type == pygame.MOUSEBUTTONDOWN:
+            keys  = pygame.key.get_pressed()
             x, y = pygame.mouse.get_pos()
-            cell = Cell(x,y)
-            if self.quadtree.insert(cell.pos) :
-                self.pool_cell = np.append(self.pool_cell, cell)
-        
+            if keys[pygame.K_q]:
+                print(self.quadtree.get_last_quadtree((x,y)).particles)
+            else :
+                if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT] :
+                    f = Food(x,y,1)
+                    if self.quadtree.insert(f.pos):
+                        self.pool_food = np.append(self.pool_food, f)
+                    else :
+                        print("ERROR : food couldn't be appened")
+                    
+                else :
+                    cell = Cell(x,y)
+                    self.pool_cell = np.append(self.pool_cell, cell)
+            
         #use zqsd keys to move the cell
         if event.type == pygame.KEYDOWN:
             if len(self.pool_cell) != 0 :
@@ -193,16 +211,23 @@ class App:
 
         #print useful data on debug_screen
         clear_surface(self.debug_screen)
-        # self.quadtree.show(self.debug_screen)
+        #self.quadtree.show(self.debug_screen)
         # for qt in self.quadtree_test :
         #     qt.show(self.debug_screen, (255,0,0))
         sentence_speed = "x"+str(globals.time_speed)+" : "+str(int(self.clock.get_fps()))+" FPS"
         time_surface = self.my_font.render(sentence_speed, False, (0, 0, 0))
         self.debug_screen.blit(time_surface, (0,0))
+        for test in self.pool_test:
+            test.shift_color((-255,-255,+255))
+            self.debug_screen.blit(test.img, test)
 
         #print each food on food_screen
         clear_surface(self.food_screen)
         for food in self.pool_food:
+            qt_final = self.quadtree.get_last_quadtree(food.pos)
+            if not contain(food.pos, qt_final.particles) :
+                print("ERROR : unknown")
+                food.shift_color((255,-255,-255))
             self.food_screen.blit(food.img, food)
 
         #print each cell on cell_screen
