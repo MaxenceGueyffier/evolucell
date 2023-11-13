@@ -20,11 +20,13 @@ class Cell(Sprite):
             self.genetical_features = {
                 "color_variation" : (0,0,0),
                 "size_variation" : 1,
+                "initial_energy" : 100,
+                "pregnancy_threshold" : 3
             }
         #adapt features according to genetical_features
         self.shift_color(self.genetical_features["color_variation"])
         self.change_size(self.genetical_features["size_variation"])
-        self.energy_level_init = int(100/(self.size**2))
+        self.energy_level_init = int(self.genetical_features["initial_energy"]/(self.size**2))
         self.energy_level = self.energy_level_init
         self.update_speed()
 
@@ -104,7 +106,7 @@ class Cell(Sprite):
         
     def is_pregnant(self):
         """if the cell as enough energy to evolve return True, else return False"""
-        if self.energy_level >= 3*self.energy_level_init:
+        if self.energy_level > int(self.genetical_features["pregnancy_threshold"]*self.energy_level_init):
             return True
         else :
             return False
@@ -128,7 +130,7 @@ class Cell(Sprite):
     def feature_to_evolve(self):
         """select a feature to evolve, return its name and its new value"""
         #list every evolution possible and its weight
-        list_evolution = ["red"]+["blue"]+["green"]+["size_variation"]*3+["no_evolution"]*100
+        list_evolution = ["no_evolution"]*100+["red"]+["blue"]+["green"]+["size_variation"]+["initial_energy"]+["pregnancy_threshold"]
         #chose one of them
         choice_criterion = choice(list_evolution)
 
@@ -145,8 +147,17 @@ class Cell(Sprite):
             return "color_variation", (r,g,b)
         #change size
         elif choice_criterion == "size_variation" :
-            coef = randint(7, 15)/10
+            coef = max(self.genetical_features["size_variation"] + randint(-2,2)/10, 0.4)
             return "size_variation", coef
+        #change initial energy
+        elif choice_criterion == "initial_energy" :
+            init_energy = max(self.genetical_features["initial_energy"] + randint(-15,15), 25)
+            return "initial_energy", init_energy
+        #change thre
+        elif choice_criterion == "pregnancy_threshold" :
+            pregnancy_threshold = max(round(self.genetical_features["pregnancy_threshold"] + randint(-3, 3)/10, 2), 1.1)
+            return "pregnancy_threshold", pregnancy_threshold
+
         #no evolution
         else :
             return "no_evolution", None
@@ -155,7 +166,7 @@ class Cell(Sprite):
     def change_size(self, coef):
         """modify size of the image
         coef : an integer which will be multiplicated to width and height ot determine the new size"""
-        if self.size*coef > 0.2 :
+        if self.size*coef > 0.3 :
             self.size *= coef
             self.width = int(self.size*self.width)
             self.height = int(self.size*self.height)

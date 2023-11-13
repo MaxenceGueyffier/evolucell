@@ -227,6 +227,11 @@ class App:
             qt_final = self.quadtree.get_last_quadtree(food.pos)
             if not contain(food.pos, qt_final.particles) :
                 print("ERROR : unknown")
+                self.quadtree.delete(food.pos)
+                for index in range(len(self.pool_food)):
+                    if self.pool_food[index].pos == (food.posx, food.posy):
+                        self.pool_food = np.delete(self.pool_food, [index])
+                        break
                 food.shift_color((255,-255,-255))
             self.food_screen.blit(food.img, food)
 
