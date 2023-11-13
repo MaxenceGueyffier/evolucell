@@ -26,7 +26,7 @@ class Cell(Sprite):
         #adapt features according to genetical_features
         self.shift_color(self.genetical_features["color_variation"])
         self.change_size(self.genetical_features["size_variation"])
-        self.energy_level_init = int(self.genetical_features["initial_energy"]/(self.size**2))
+        self.energy_level_init = int(self.genetical_features["initial_energy"]*self.size)
         self.energy_level = self.energy_level_init
         self.update_speed()
 
@@ -130,7 +130,7 @@ class Cell(Sprite):
     def feature_to_evolve(self):
         """select a feature to evolve, return its name and its new value"""
         #list every evolution possible and its weight
-        list_evolution = ["no_evolution"]*100+["red"]+["blue"]+["green"]+["size_variation"]+["initial_energy"]+["pregnancy_threshold"]
+        list_evolution = ["no_evolution"]*10+["red"]+["blue"]+["green"]+["size_variation"]+["initial_energy"]+["pregnancy_threshold"]
         #chose one of them
         choice_criterion = choice(list_evolution)
 
