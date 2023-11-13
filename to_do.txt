@@ -1,0 +1,38 @@
+
+BIG CHALLENGES OF THE PROJECT :
+
+1.  One cell can eat food : [OK]
+2.  Several cells can reproduce and evolve : [OK]
+3.  A lot of cells in a large playground : []
+4.  Cells with sensors and a genetical behavior : []
+5.  Multicellar oragnisms with dedicated cells : []
+
+
+
+TASKS :
+
+====> problem
+-> What to do (difficulty)
+-> what to do next (difficulty)
+difficulty : 
+(*)   = easy
+(**)  = medium
+(***) = hard
+
+====> when I accelerate time, cells are too fast and they miss food
+-> change fps according to time_speed (*)       
+
+====> blue food can impact performance because it means the food has still not been deleted from the quadtree
+-> fix bug blue food when you press space (**)  
+
+====> reorganization of the code in order to store each food in quadtrees because it may severely impact performance
+-> merge pool_food and quadtree (***)                       
+
+====> allow users to move and zoom through the playground
+-> change size playground (*) 
+-> move camera (**) 
+-> zoom mecanism (***)
+
+====> click on the screen to create a new food generator
+-> food generator with specific range (**) 
+-> panel to control food generator : delete, range, food appearance rate... (**)    

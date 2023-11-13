@@ -111,8 +111,8 @@ class App:
                 for food_x, food_y in list_object_colision:
                     if not self.quadtree.delete((food_x, food_y)):
                         print("ERROR : food couldn't be deleted",food_x, food_y)
-                        # f_test = Food(int(food_x), int(food_y))
-                        # self.pool_test = np.append(self.pool_test, f_test)
+                        f_test = Food(int(food_x), int(food_y))
+                        self.pool_test = np.append(self.pool_test, f_test)
                     else :
                         for index in range(len(self.pool_food)):
                             if self.pool_food[index].pos == (food_x, food_y):
