@@ -4,8 +4,7 @@ SCREEN_HEIGHT = 600
 
 fps = 30
 time_speed = 1
-
-
+#test
 
 def increase_speed():
     global time_speed
