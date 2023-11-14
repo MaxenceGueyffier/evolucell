@@ -14,8 +14,6 @@ class Sprite:
     posy : y-coordinate
     width : width
     height : height
-
-
     '''
     def __init__(self, img_name : str, posx=None, posy=None):
         self.img_name = img_name

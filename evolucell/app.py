@@ -17,6 +17,7 @@ def clear_surface(surface):
 
 class App:
     def __init__(self):
+        #main features of the App class
         self._running = True
         self.screen = None
         self.size = globals.SCREEN_WIDTH, globals.SCREEN_HEIGHT
@@ -28,9 +29,9 @@ class App:
         self.initial_qtt_of_food = 500
         
 
-
-
     def on_init(self):
+        """called only once, at the start of the program"""
+
         #pygame features
         pygame.init()
         pygame.display.set_caption('Evolucell')
@@ -81,6 +82,8 @@ class App:
 
     
     def cell_handler (self):
+        """deal with life cycle of every cell"""
+
         cindex = 0
         while cindex < len(self.pool_cell) and cindex >= 0:
 
@@ -118,6 +121,7 @@ class App:
             cindex += 1
 
     def food_handler (self):
+        """deal with the renewal of foods"""
         if self.quadtree.particles.size <= self.initial_qtt_of_food :
             current_time = pygame.time.get_ticks() 
             if current_time - self.timer_food >= self.wait_for_food*1000/globals.time_speed :
@@ -127,6 +131,8 @@ class App:
 
 
     def on_event(self, event):
+        """process every user action"""
+
         #quit the app
         if event.type == pygame.QUIT:
             self._running = False
@@ -177,6 +183,7 @@ class App:
     def on_loop(self):
         #tick every frame
         self.clock.tick(globals.fps)
+
         clear_surface(self.debug_screen)
 
         self.cell_handler()
@@ -188,6 +195,8 @@ class App:
         pygame.display.flip()
 
     def on_render(self):
+        """manage the screen display"""
+
         #erase main screen
         self.screen.fill(color.background) 
 
@@ -228,6 +237,7 @@ class App:
         pygame.display.update()
 
     def on_cleanup(self):
+        """before quitting"""
         pygame.quit()
  
     def on_execute(self):

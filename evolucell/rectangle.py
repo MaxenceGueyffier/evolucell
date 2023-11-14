@@ -15,9 +15,9 @@ class Rectangle:
         self.color = color
         self.line_thickness = line_thickness
 
-    def containsParticle(self, particle):
-        """if the particle (which is a tuple) is inside the boundaries of the rectangle"""   
-        (x_particle, y_particle) = particle
+    def containsParticle(self, coordinate):
+        """if a coordinate is located inside the boundaries of the rectangle return True, otherwise return False"""   
+        (x_particle, y_particle) = coordinate
         if x_particle >= self.x and x_particle < self.x+self.width and y_particle >= self.y and y_particle < self.y+self.height:
             return True
         else:
