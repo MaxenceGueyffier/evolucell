@@ -19,10 +19,6 @@ difficulty :
 (**)  = medium
 (***) = hard
       
-
-====> blue food can impact performance because it means the food has still not been deleted from the quadtree
--> fix bug blue food when you press space (**)  
-
 ====> reorganization of the code in order to store each food in quadtrees because it may severely impact performance
 -> merge pool_food and quadtree (***)                       
 
@@ -32,5 +28,6 @@ difficulty :
 -> zoom mecanism (***)
 
 ====> click on the screen to create a new food generator
+-> allow system to add more food to the screen at each frame (*)
 -> food generator with specific range (**) 
 -> panel to control food generator : delete, range, food appearance rate... (**)    
