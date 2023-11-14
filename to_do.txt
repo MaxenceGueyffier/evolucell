@@ -20,7 +20,6 @@ difficulty :
 (***) = hard
                 
 ====> allow users to move and zoom through the playground
--> move camera (**) 
 -> zoom mecanism (***)
 
 ====> click on the screen to create a new food generator
