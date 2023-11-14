@@ -20,11 +20,15 @@ difficulty :
 (***) = hard
                 
 ====> allow users to move and zoom through the playground
--> change size playground (*) 
 -> move camera (**) 
 -> zoom mecanism (***)
 
 ====> click on the screen to create a new food generator
 -> allow system to add more food to the screen at each frame (*)
 -> food generator with specific range (**) 
--> panel to control food generator : delete, range, food appearance rate... (**)    
+
+====> data more readable
+-> side surface dedicated to display information (*)
+-> print useful data on this panel : time_speed, fps, no. of cells alive, camera location ...(*)
+-> resizable (**)
+-> controler for food generator on the side surface: delete, range, food appearance rate... (*)    

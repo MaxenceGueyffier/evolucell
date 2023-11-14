@@ -4,7 +4,7 @@ import pygame
 class Rectangle:
     """
     Rectangle(x, y, width, height, color=(0,0,0), line_thickness=1)\n
-    Rectangle used as boundaries by a Quadtree\n
+    Rectangle are used as boundaries by a Quadtree\n
     x,y are the coordinates of the upper left corner of the rectangle
     """
     def __init__(self, x:int, y:int, width:int, height:int, color=(0,0,0), line_thickness=1):

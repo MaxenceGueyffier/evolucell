@@ -26,6 +26,8 @@ class App:
         #self.quadtree_test = np.array([])
         self.timer_food = 0
         self.wait_for_food = 0
+        self.camera_loc = (0,0)
+        self.camera_boundaries = Rectangle(self.camera_loc[0], self.camera_loc[1], globals.screen_width, globals.screen_height)
         
 
     def on_init(self):
@@ -44,16 +46,16 @@ class App:
         self.screen.fill(color.background) 
 
         #debug screen
-        self.debug_screen = pygame.surface.Surface((globals.screen_width,globals.screen_height), pygame.SRCALPHA, 32)
+        self.debug_screen = pygame.surface.Surface((globals.playground_width,globals.playground_height), pygame.SRCALPHA, 32)
         self.debug_screen.convert_alpha()
         self.pool_test = np.array([])
 
         #food screen
-        self.food_screen = pygame.surface.Surface((globals.screen_width,globals.screen_height), pygame.SRCALPHA, 32)
+        self.food_screen = pygame.surface.Surface((globals.playground_width,globals.playground_height), pygame.SRCALPHA, 32)
         self.food_screen.convert_alpha()
 
         #cell_screen
-        self.cell_screen = pygame.surface.Surface((globals.screen_width,globals.screen_height), pygame.SRCALPHA, 32)
+        self.cell_screen = pygame.surface.Surface((globals.playground_width,globals.playground_height), pygame.SRCALPHA, 32)
         self.food_screen.convert_alpha()
 
         #first quadtree
@@ -140,6 +142,8 @@ class App:
         if event.type == pygame.MOUSEBUTTONDOWN:
             keys  = pygame.key.get_pressed()
             x, y = pygame.mouse.get_pos()
+            x -= self.camera_loc[0]
+            y -= self.camera_loc[1]
             if keys[pygame.K_q]:
                 for p in self.quadtree.get_last_quadtree_from_pos((x,y)).particles :
                     print(p.pos)
@@ -152,6 +156,20 @@ class App:
             
         #use zqsd keys to move the cell
         if event.type == pygame.KEYDOWN:
+
+            #move camera
+            if event.key == pygame.K_UP:
+                self.camera_loc = (self.camera_loc[0], self.camera_loc[1]+10)
+            if event.key == pygame.K_DOWN:
+                self.camera_loc = (self.camera_loc[0], self.camera_loc[1]-10)
+            if event.key == pygame.K_LEFT:
+                self.camera_loc = (self.camera_loc[0]+10, self.camera_loc[1])
+            if event.key == pygame.K_RIGHT:
+                self.camera_loc = (self.camera_loc[0]-10, self.camera_loc[1])
+            self.camera_boundaries = Rectangle(-self.camera_loc[0], -self.camera_loc[1], globals.screen_width, globals.screen_height)
+
+
+            #control first cell
             if len(self.pool_cell) != 0 :
                 if event.key == pygame.K_z:
                     self.pool_cell[0].move_forward()
@@ -161,6 +179,8 @@ class App:
                     self.pool_cell[0].turn_left()
                 if event.key == pygame.K_d:
                     self.pool_cell[0].turn_right()
+            
+            #control time
             if event.key == pygame.K_p:
                 globals.increase_speed()
                 if len(self.pool_cell) != 0 :
@@ -171,6 +191,8 @@ class App:
                 if len(self.pool_cell) != 0 :
                     for cell in self.pool_cell:
                         cell.update_speed()
+
+            #delete every food
             if event.key == pygame.K_SPACE:
                 for food in self.quadtree.particles:
                     self.quadtree.delete(food)
@@ -188,8 +210,6 @@ class App:
         self.cell_handler()
             
         self.food_handler()
-
-        print(len(self.pool_cell))
 
         #self.quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
 
@@ -209,10 +229,18 @@ class App:
         #     qt.show(self.debug_screen, (255,0,0))
         sentence_speed = "x"+str(globals.time_speed)+" : "+str(int(self.clock.get_fps()))+" FPS"
         time_surface = self.my_font.render(sentence_speed, False, (0, 0, 0))
-        self.debug_screen.blit(time_surface, (0,0))
+
+        sentence_cells_alive = "no. of cells alive : "+str(len(self.pool_cell))
+        alive_surface = self.my_font.render(sentence_cells_alive, False, (0, 0, 0))
+
+        self.screen.blit(time_surface, (5,0))
+        self.screen.blit(alive_surface, (5,20))
+
+
         for test in self.pool_test:
             test.shift_color((-255,-255,+255))
-            self.debug_screen.blit(test.img, test)
+            if self.camera_boundaries.containsParticle(test.pos) :
+                self.debug_screen.blit(test.img, test)
 
         #print each food on food_screen
         clear_surface(self.food_screen)
@@ -222,17 +250,19 @@ class App:
                 print("ERROR : unknown")
                 self.quadtree.delete(food)
                 food.shift_color((255,-255,-255))
-            self.food_screen.blit(food.img, food)
+            if self.camera_boundaries.containsParticle(food.pos) :
+                self.food_screen.blit(food.img, food)
 
         #print each cell on cell_screen
         clear_surface(self.cell_screen)
         for cell in self.pool_cell:
-            self.cell_screen.blit(cell.img, cell)
+            if self.camera_boundaries.containsParticle((cell.posx, cell.posy)) :
+                self.cell_screen.blit(cell.img, cell)
 
         #copy every screen into the main screen
-        self.screen.blit(self.cell_screen, (0,0))
-        self.screen.blit(self.food_screen, (0,0))
-        self.screen.blit(self.debug_screen, (0,0))
+        self.screen.blit(self.cell_screen, self.camera_loc)
+        self.screen.blit(self.food_screen, self.camera_loc)
+        self.screen.blit(self.debug_screen, self.camera_loc)
 
         pygame.display.flip()
 
