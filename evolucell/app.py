@@ -137,7 +137,8 @@ class App:
             keys  = pygame.key.get_pressed()
             x, y = pygame.mouse.get_pos()
             if keys[pygame.K_q]:
-                print(self.quadtree.get_last_quadtree(Food(x,y)).particles.pos)
+                for p in self.quadtree.get_last_quadtree_from_pos((x,y)).particles :
+                    print(p.pos)
             else :
                 if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT] :
                     self.quadtree.insert(Food(x,y,1))
@@ -206,7 +207,7 @@ class App:
         #print each food on food_screen
         clear_surface(self.food_screen)
         for food in self.quadtree.particles:
-            qt_final = self.quadtree.get_last_quadtree(food)
+            qt_final = self.quadtree.get_last_quadtree_from_pos(food.pos)
             if not contain(food.pos, qt_final.particles) :
                 print("ERROR : unknown")
                 self.quadtree.delete(food)

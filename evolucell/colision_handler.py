@@ -27,10 +27,10 @@ def get_quadtrees_from_a_sprite (sprite, quadtree, depth = 4):
     w = sprite.posx + sprite.width/2
     h = sprite.posy + sprite.height/2
     quadtree_array = np.array([])
-    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree((x,y),depth))
-    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree((w,y),depth))
-    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree((x,h),depth))
-    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree((w,h),depth))
+    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree_from_pos((x,y),depth))
+    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree_from_pos((w,y),depth))
+    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree_from_pos((x,h),depth))
+    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree_from_pos((w,h),depth))
     return quadtree_array
 
 def is_colision(object1, quadtree, screen=None):

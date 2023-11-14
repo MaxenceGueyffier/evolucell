@@ -16,7 +16,8 @@ def contain_approximatively(nptup,nparray):
 
 def contain(nptup,nparray):
     """check if the exact particule is already in the quadtree"""
-    _set = set((x,y) for [x,y] in nparray.pos)
+    
+    _set = set(particle.pos for particle in nparray)
     (x,y) = nptup
     if (x,y) in _set :
         return True
@@ -144,7 +145,7 @@ class Quadtree:
         #for each particle       
         for i in range(len(self.particles)-1, -1, -1):
             #if its coordinates are the same as the one we need to delete
-            if self.particles[i][0]==particle.posx and self.particles[i][1]==particle.posy:
+            if self.particles[i].pos==particle.pos:
                 #delete it
                 self.particles = np.delete(self.particles, i)
                 #if the quadtree has a subdivision
@@ -179,20 +180,21 @@ class Quadtree:
 
 
     
-    def get_last_quadtree(self, particle, depth_max:int = -1):
+    def get_last_quadtree_from_pos(self, pos, depth_max:int = -1):
         """get the last quadtree to which the particle should be assigned
         depth_max : only allows Quadtree with a maximal level of subdivision, a negative value means no maximal depth 
         """
+
         if (depth_max>=0 and self.subdivision!=depth_max) or depth_max<0 :
             if self.northWest != None :
-                if self.northWest.boundary.containsParticle(particle.pos):
-                    return self.northWest.get_last_quadtree(particle.pos,depth_max)
-                elif self.northEast.boundary.containsParticle(particle.pos):
-                    return self.northEast.get_last_quadtree(particle.pos, depth_max)
-                elif self.southWest.boundary.containsParticle(particle.pos):
-                    return self.southWest.get_last_quadtree(particle.pos, depth_max)
+                if self.northWest.boundary.containsParticle(pos):
+                    return self.northWest.get_last_quadtree_from_pos(pos, depth_max)
+                elif self.northEast.boundary.containsParticle(pos):
+                    return self.northEast.get_last_quadtree_from_pos(pos, depth_max)
+                elif self.southWest.boundary.containsParticle(pos):
+                    return self.southWest.get_last_quadtree_from_pos(pos, depth_max)
                 else:
-                    return self.southEast.get_last_quadtree(particle.pos, depth_max)
+                    return self.southEast.get_last_quadtree_from_pos(pos, depth_max)
             else:
                 return self
         else : 
