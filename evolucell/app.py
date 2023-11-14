@@ -199,7 +199,7 @@ class App:
 
     def on_loop(self):
         #tick every frame
-        self.clock.tick(globals.FPS)
+        self.clock.tick(globals.fps)
         clear_surface(self.debug_screen)
 
         self.cell_handler()
