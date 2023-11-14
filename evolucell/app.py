@@ -63,11 +63,9 @@ class App:
     
         #launching food
         for i in range(self.initial_qtt_of_food):
-            self.pool_food = np.append(self.pool_food, Food(size=1))
-            self.quadtree.insert(self.pool_food[i].pos)
+            self.quadtree.insert(Food(size=1))
         food1 = Food(500,10)
-        self.pool_food = np.append(self.pool_food, food1)
-        self.quadtree.insert(food1.pos)
+        self.quadtree.insert(food1)
 
         self.quadtree.show(self.screen)
 
@@ -94,8 +92,7 @@ class App:
                 self.pool_cell = np.delete(self.pool_cell, [cindex])
                 #release some food while dying
                 food1 = Food(x,y)
-                self.pool_food = np.append(self.pool_food, food1)
-                self.quadtree.insert(food1.pos)
+                self.quadtree.insert(food1)
 
                 #update beacause the length of pool_cell has changed
                 cindex -= 1
@@ -106,15 +103,10 @@ class App:
                 self.pool_cell[cindex].decrease_energy()  
 
                 #if there is any colision btwn a cell and some food, the cell eat the food
-                list_object_colision=is_colision(self.pool_cell[cindex], Food, self.quadtree)
-                list_object_colision = np.reshape(list_object_colision, (-1,2))
-                for food_x, food_y in list_object_colision:
-                    if self.quadtree.delete((food_x, food_y)):
-                        for index in range(len(self.pool_food)):
-                            if self.pool_food[index].pos == (food_x, food_y):
-                                self.pool_food = np.delete(self.pool_food, [index])
-                                self.pool_cell[cindex].eat()
-                                break
+                list_object_colision=is_colision(self.pool_cell[cindex], self.quadtree)
+                for food in list_object_colision:
+                    self.quadtree.delete(food)
+                    self.pool_cell[cindex].eat()
 
                 #if a cell has enough energy, it gives birth to another cell
                 if self.pool_cell[cindex].is_pregnant():
@@ -131,14 +123,8 @@ class App:
             current_time = pygame.time.get_ticks() 
             if current_time - self.timer_food >= self.wait_for_food*1000/globals.time_speed :
                 self.timer_food = current_time
-                f = Food(size=1)
-                if self.quadtree.insert(f.pos) :
-                    self.pool_food = np.append(self.pool_food, f)
-
-
-                
-
-
+                food = Food(size=1)
+                self.quadtree.insert(food)
 
 
     def on_event(self, event):
@@ -151,15 +137,10 @@ class App:
             keys  = pygame.key.get_pressed()
             x, y = pygame.mouse.get_pos()
             if keys[pygame.K_q]:
-                print(self.quadtree.get_last_quadtree((x,y)).particles)
+                print(self.quadtree.get_last_quadtree(Food(x,y)).particles.pos)
             else :
                 if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT] :
-                    f = Food(x,y,1)
-                    if self.quadtree.insert(f.pos):
-                        self.pool_food = np.append(self.pool_food, f)
-                    else :
-                        print("ERROR : food couldn't be appened")
-                    
+                    self.quadtree.insert(Food(x,y,1))
                 else :
                     cell = Cell(x,y)
                     self.pool_cell = np.append(self.pool_cell, cell)
@@ -224,15 +205,11 @@ class App:
 
         #print each food on food_screen
         clear_surface(self.food_screen)
-        for food in self.pool_food:
-            qt_final = self.quadtree.get_last_quadtree(food.pos)
+        for food in self.quadtree.particles:
+            qt_final = self.quadtree.get_last_quadtree(food)
             if not contain(food.pos, qt_final.particles) :
                 print("ERROR : unknown")
-                self.quadtree.delete(food.pos)
-                for index in range(len(self.pool_food)):
-                    if self.pool_food[index].pos == (food.posx, food.posy):
-                        self.pool_food = np.delete(self.pool_food, [index])
-                        break
+                self.quadtree.delete(food)
                 food.shift_color((255,-255,-255))
             self.food_screen.blit(food.img, food)
 
