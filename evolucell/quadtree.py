@@ -16,7 +16,7 @@ def contain_approximatively(nptup,nparray):
 
 def contain(nptup,nparray):
     """check if the exact particule is already in the quadtree"""
-    _set = set((x,y) for [x,y] in nparray.pos)
+    _set = set((x,y) for [x,y] in nparray)
     (x,y) = nptup
     if (x,y) in _set :
         return True
@@ -100,19 +100,19 @@ class Quadtree:
         #if this particle already exists, delete it
         if(self.subdivision == 0):
             if len(self.particles)!=0 :
-                if contain(particle.pos, self.particles):
+                if contain(particle, self.particles):
                     print("cell already there")
                     #job has failed
                     return False
                 
         #check if you're in the right Quadtree
-        if self.boundary.containsParticle(particle.pos) == False:
+        if self.boundary.containsParticle(particle) == False:
             #job has failed
             return False
         
         #add particle to the list of particles with the right format
         self.particles = np.append(self.particles, (particle))
-        #self.particles = np.reshape(self.particles, (-1, 2))
+        self.particles = np.reshape(self.particles, (-1, 2))
 
         #if the Quadtree is not out of capacity yet
         if len(self.particles) > self.capacity:
@@ -144,15 +144,15 @@ class Quadtree:
         #for each particle       
         for i in range(len(self.particles)-1, -1, -1):
             #if its coordinates are the same as the one we need to delete
-            if self.particles[i][0]==particle.posx and self.particles[i][1]==particle.posy:
+            if self.particles[i][0]==particle[0] and self.particles[i][1]==particle[1]:
                 #delete it
-                self.particles = np.delete(self.particles, i)
+                self.particles = np.delete(np.reshape(self.particles,(-1,2)), i, 0)
                 #if the quadtree has a subdivision
                 if self.northWest != None:
                     #for each subquadtree
                     for subqt in [self.northWest, self.northEast, self.southWest, self.southEast]:
                         #check if the subquadtree contains the particle
-                        if subqt.boundary.containsParticle(particle.pos) :
+                        if subqt.boundary.containsParticle(particle) :
                             #if the curent quadtre (not the subquadtree) has reached it limit 
                             if len(self.particles) <= self.capacity:
                                 #delete all the subquadtrees
@@ -185,14 +185,14 @@ class Quadtree:
         """
         if (depth_max>=0 and self.subdivision!=depth_max) or depth_max<0 :
             if self.northWest != None :
-                if self.northWest.boundary.containsParticle(particle.pos):
-                    return self.northWest.get_last_quadtree(particle.pos,depth_max)
-                elif self.northEast.boundary.containsParticle(particle.pos):
-                    return self.northEast.get_last_quadtree(particle.pos, depth_max)
-                elif self.southWest.boundary.containsParticle(particle.pos):
-                    return self.southWest.get_last_quadtree(particle.pos, depth_max)
+                if self.northWest.boundary.containsParticle(particle):
+                    return self.northWest.get_last_quadtree(particle,depth_max)
+                elif self.northEast.boundary.containsParticle(particle):
+                    return self.northEast.get_last_quadtree(particle, depth_max)
+                elif self.southWest.boundary.containsParticle(particle):
+                    return self.southWest.get_last_quadtree(particle, depth_max)
                 else:
-                    return self.southEast.get_last_quadtree(particle.pos, depth_max)
+                    return self.southEast.get_last_quadtree(particle, depth_max)
             else:
                 return self
         else : 
