@@ -22,7 +22,6 @@ class App:
         self.size = globals.SCREEN_WIDTH, globals.SCREEN_HEIGHT
         self.clock = pygame.time.Clock()
         self.pool_cell = np.array([])
-        self.pool_food = np.array([])
         #self.quadtree_test = np.array([])
         self.timer_food = 0
         self.wait_for_food = 0
@@ -119,7 +118,7 @@ class App:
             cindex += 1
 
     def food_handler (self):
-        if self.pool_food.size <= self.initial_qtt_of_food :
+        if self.quadtree.particles.size <= self.initial_qtt_of_food :
             current_time = pygame.time.get_ticks() 
             if current_time - self.timer_food >= self.wait_for_food*1000/globals.time_speed :
                 self.timer_food = current_time
