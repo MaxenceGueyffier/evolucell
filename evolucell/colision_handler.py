@@ -39,14 +39,14 @@ def is_colision(object1, quadtree, screen=None):
     quadtree_array = get_quadtrees_from_a_sprite(object1, quadtree, get_maximal_depth(object1))
 
     for qt in quadtree_array:
-        for particle in qt.particles:
-            mask2 = pygame.mask.from_surface(particle.img)
-            if mask1.overlap(mask2, (particle.rect.x-object1.rect.x, particle.rect.y-object1.rect.y)) != None:
+        for food in qt.particles:
+            mask2 = pygame.mask.from_surface(food.img)
+            if mask1.overlap(mask2, (food.rect.x-object1.rect.x, food.rect.y-object1.rect.y)) != None:
                 if screen != None :
-                    screen.blit(mask2.to_surface(unsetcolor=(0, 0, 0, 0), setcolor=(255, 255, 255, 255)), particle)
+                    screen.blit(mask2.to_surface(unsetcolor=(0, 0, 0, 0), setcolor=(255, 255, 255, 255)), food)
                 
-                if not contain(particle.pos, list_colision):
-                    list_colision = np.append(list_colision, particle)
+                if not contain(food.pos, list_colision):
+                    list_colision = np.append(list_colision, food)
     return list_colision
 
 
