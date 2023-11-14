@@ -18,10 +18,7 @@ difficulty :
 (*)   = easy
 (**)  = medium
 (***) = hard
-      
-====> reorganization of the code in order to store each food in quadtrees because it may severely impact performance
--> merge pool_food and quadtree (***)                       
-
+                
 ====> allow users to move and zoom through the playground
 -> change size playground (*) 
 -> move camera (**) 

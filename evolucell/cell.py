@@ -84,8 +84,8 @@ class Cell(Sprite):
     
     def is_inside_boudaries(self, future_posx, future_posy, future_width, future_height):
         """check if a cell will still be inside the boundaries of the screen"""
-        if future_posx-future_width/2 >= 0 and future_posx+future_width/2 <= globals.SCREEN_WIDTH :
-            if future_posy-future_height/2 >= 0 and future_posy+future_height/2 <= globals.SCREEN_HEIGHT :
+        if future_posx-future_width/2 >= 0 and future_posx+future_width/2 <= globals.playground_width :
+            if future_posy-future_height/2 >= 0 and future_posy+future_height/2 <= globals.playground_height :
                 return True
         return False
     

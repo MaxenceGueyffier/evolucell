@@ -5,9 +5,9 @@ from .sprite import Sprite
 from .quadtree import Quadtree, contain
 from .common import globals as globals
 
-def get_maximal_depth(sprite) :
-    w = globals.SCREEN_WIDTH
-    h = globals.SCREEN_HEIGHT
+def get_maximal_depth(sprite: Sprite) :
+    w = globals.playground_width
+    h = globals.playground_height
     depth = -1
     while sprite.width < w and sprite.height < h :
         w /= 2
@@ -35,8 +35,8 @@ def get_quadtrees_from_a_sprite (sprite: Sprite, quadtree: Quadtree, depth = 4):
     quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree_from_pos((w,h),depth))
     return quadtree_array
 
-def is_colision(_object:Sprite, quadtree: Quadtree, screen=None):
-    """finds which particles in the quadtree are colliding with the _object (which is also a Sprite)\n
+def list_colision(_object:Sprite, quadtree: Quadtree, screen=None):
+    """Finds which particles in the quadtree are colliding with the _object (which is also a Sprite)\n
     Return a list of particle.\n
     Warning : it only works if the quadtree contains Sprites as particles."""
     mask1 = pygame.mask.from_surface(_object.img)       

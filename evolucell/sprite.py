@@ -24,23 +24,23 @@ class Sprite:
 
         #if no coordinate is specified, use a random location
         if posx is None and posy is None :
-            self.posx = random.randrange(int(self.width/2), globals.SCREEN_WIDTH-int(self.width/2))
-            self.posy = random.randrange(int(self.height/2), globals.SCREEN_HEIGHT-int(self.height/2))
+            self.posx = random.randrange(int(self.width/2), globals.playground_width-int(self.width/2))
+            self.posy = random.randrange(int(self.height/2), globals.playground_height-int(self.height/2))
         else :
             #if there is one, check first if it is valid
             if isinstance(posx, int) and isinstance(posy, int) :
-                if posx>=(int(self.width/2)) and posx<=(globals.SCREEN_WIDTH-int(self.width/2)) and posy>=(int(self.height/2)) and posy<=(globals.SCREEN_HEIGHT-int(self.height/2)):
+                if posx>=(int(self.width/2)) and posx<=(globals.playground_width-int(self.width/2)) and posy>=(int(self.height/2)) and posy<=(globals.playground_height-int(self.height/2)):
                     self.posx = posx
                     self.posy = posy
                 else :
-                    print("ERROR : location type isn't correct, random location used instead")
-                    self.posx = random.randrange(int(self.width/2),globals.SCREEN_WIDTH-int(self.width/2))
-                    self.posy = random.randrange(int(self.width/2),globals.SCREEN_HEIGHT-int(self.width/2))
-            #if the format is incorrect, return an error message and define the location as the center of the screen
+                    print("ERROR : location isn't valid, random location used instead")
+                    self.posx = random.randrange(int(self.width/2),globals.playground_width-int(self.width/2))
+                    self.posy = random.randrange(int(self.width/2),globals.playground_height-int(self.width/2))
+            #if the format is incorrect, return an error message and define a random location
             else:
                 print("ERROR : location type isn't correct, random location used instead")
-                self.posx = random.randrange(int(self.width/2),globals.SCREEN_WIDTH-int(self.width/2))
-                self.posy = random.randrange(int(self.width/2),globals.SCREEN_HEIGHT-int(self.width/2))
+                self.posx = random.randrange(int(self.width/2),globals.playground_width-int(self.width/2))
+                self.posy = random.randrange(int(self.width/2),globals.playground_height-int(self.width/2))
         self.pos = (self.posx,self.posy)
 
         self.rect = self.img.get_rect(center=(self.posx, self.posy))

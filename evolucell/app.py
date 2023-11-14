@@ -20,13 +20,12 @@ class App:
         #main features of the App class
         self._running = True
         self.screen = None
-        self.size = globals.SCREEN_WIDTH, globals.SCREEN_HEIGHT
+        self.size = globals.screen_width, globals.screen_height
         self.clock = pygame.time.Clock()
         self.pool_cell = np.array([])
         #self.quadtree_test = np.array([])
         self.timer_food = 0
         self.wait_for_food = 0
-        self.initial_qtt_of_food = 500
         
 
     def on_init(self):
@@ -45,24 +44,24 @@ class App:
         self.screen.fill(color.background) 
 
         #debug screen
-        self.debug_screen = pygame.surface.Surface((globals.SCREEN_WIDTH,globals.SCREEN_HEIGHT), pygame.SRCALPHA, 32)
+        self.debug_screen = pygame.surface.Surface((globals.screen_width,globals.screen_height), pygame.SRCALPHA, 32)
         self.debug_screen.convert_alpha()
         self.pool_test = np.array([])
 
         #food screen
-        self.food_screen = pygame.surface.Surface((globals.SCREEN_WIDTH,globals.SCREEN_HEIGHT), pygame.SRCALPHA, 32)
+        self.food_screen = pygame.surface.Surface((globals.screen_width,globals.screen_height), pygame.SRCALPHA, 32)
         self.food_screen.convert_alpha()
 
         #cell_screen
-        self.cell_screen = pygame.surface.Surface((globals.SCREEN_WIDTH,globals.SCREEN_HEIGHT), pygame.SRCALPHA, 32)
+        self.cell_screen = pygame.surface.Surface((globals.screen_width,globals.screen_height), pygame.SRCALPHA, 32)
         self.food_screen.convert_alpha()
 
         #first quadtree
-        boundary = Rectangle(0,0, globals.SCREEN_WIDTH, globals.SCREEN_HEIGHT, color.boudaries_quadtree)
+        boundary = Rectangle(0,0, globals.playground_width, globals.playground_height, color.boudaries_quadtree)
         self.quadtree = Quadtree(2, boundary)
     
         #launching food
-        for i in range(self.initial_qtt_of_food):
+        for i in range(globals.initial_qtt_of_food):
             self.quadtree.insert(Food(size=1))
         food1 = Food(500,10)
         self.quadtree.insert(food1)
@@ -105,7 +104,7 @@ class App:
                 self.pool_cell[cindex].decrease_energy()  
 
                 #if there is any colision btwn a cell and some food, the cell eat the food
-                list_object_colision=is_colision(self.pool_cell[cindex], self.quadtree)
+                list_object_colision=list_colision(self.pool_cell[cindex], self.quadtree)
                 for food in list_object_colision:
                     self.quadtree.delete(food)
                     self.pool_cell[cindex].eat()
@@ -122,7 +121,7 @@ class App:
 
     def food_handler (self):
         """deal with the renewal of foods"""
-        if self.quadtree.particles.size <= self.initial_qtt_of_food :
+        if self.quadtree.particles.size <= globals.initial_qtt_of_food :
             current_time = pygame.time.get_ticks() 
             if current_time - self.timer_food >= self.wait_for_food*1000/globals.time_speed :
                 self.timer_food = current_time
@@ -173,9 +172,9 @@ class App:
                     for cell in self.pool_cell:
                         cell.update_speed()
             if event.key == pygame.K_SPACE:
-                for food in self.pool_food:
-                    self.quadtree.delete(food.pos)
-                self.pool_food = np.array([])
+                for food in self.quadtree.particles:
+                    self.quadtree.delete(food)
+                self.quadtree.particles = np.array([])
 
 
 
@@ -190,9 +189,12 @@ class App:
             
         self.food_handler()
 
+        print(len(self.pool_cell))
+
         #self.quadtree_test = get_quadtrees_from_a_sprite(self.pool_cell[0], self.quadtree, get_maximal_depth(self.pool_cell[0]))
 
         pygame.display.flip()
+
 
     def on_render(self):
         """manage the screen display"""

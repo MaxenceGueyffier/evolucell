@@ -1,6 +1,10 @@
+playground_width = 2000
+playground_height = 1200
 
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 600
+screen_width = 1000
+screen_height = 600
+
+initial_qtt_of_food = int(500*((playground_width/screen_width)**2))
 
 fps = 30
 time_speed = 1
