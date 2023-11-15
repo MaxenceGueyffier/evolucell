@@ -170,7 +170,7 @@ class Quadtree:
             self.southWest.show(screen, color)
             self.southEast.show(screen, color)
         else :
-            self.boundary.Draw(screen, color)
+            self.boundary.draw(screen, color)
 
 
     

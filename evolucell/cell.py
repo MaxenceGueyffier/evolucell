@@ -137,17 +137,17 @@ class Cell(Sprite):
         #select a random color to modify to a random value
         (r,g,b) = self.genetical_features["color_variation"]
         if choice_criterion == "red":
-            r = r+randint(-50,50)
+            r = r+randint(-30,30)
             return "color_variation", (r,g,b)
         elif choice_criterion == "blue":
-            g = g+randint(-50,50)
+            g = g+randint(-30,30)
             return "color_variation", (r,g,b)
         elif choice_criterion == "green":
-            b = b+randint(-50,50)
+            b = b+randint(-30,30)
             return "color_variation", (r,g,b)
         #change size
         elif choice_criterion == "size_variation" :
-            coef = max(self.genetical_features["size_variation"] + randint(-2,2)/10, 0.4)
+            coef = max(self.genetical_features["size_variation"] + round(randint(-2,2)/10,1), 0.4)
             return "size_variation", coef
         #change initial energy
         elif choice_criterion == "initial_energy" :
@@ -176,6 +176,6 @@ class Cell(Sprite):
 
     def update_speed(self):
         """modify the speed according to the timespeed ts"""
-        self.speed = 5*globals.time_speed/(self.size**2)
-        self.angular_speed = 5*globals.time_speed/(self.size**2)
+        self.speed = 5*globals.time_speed/self.size
+        self.angular_speed = 5*globals.time_speed/self.size
 

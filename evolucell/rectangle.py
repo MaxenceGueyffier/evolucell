@@ -23,7 +23,7 @@ class Rectangle:
         else:
             return False
 
-    def Draw(self, screen, color=(0,0,0)):
+    def draw(self, screen, color=(0,0,0)):
         """dislpay the rect on the screen"""
         self.color = color
         pygame.draw.rect(screen, self.color, [self.x, self.y, self.width, self.height], self.line_thickness)

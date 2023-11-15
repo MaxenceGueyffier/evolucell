@@ -26,7 +26,8 @@ class App:
         #self.quadtree_test = np.array([])
         self.timer_food = 0
         self.wait_for_food = 0
-        self.camera_loc = (0,0)
+        self.camera_loc = (0,0) #top_left corner of the camera
+        self.camera_zoom = 1
         self.camera_boundaries = Rectangle(self.camera_loc[0], self.camera_loc[1], globals.screen_width, globals.screen_height)
         
 
@@ -44,6 +45,10 @@ class App:
         #background
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self.screen.fill(color.background) 
+
+        #camera screen
+        self.camera_screen = pygame.surface.Surface((globals.playground_width,globals.playground_height), pygame.SRCALPHA, 32)
+        self.camera_screen.convert_alpha()
 
         #debug screen
         self.debug_screen = pygame.surface.Surface((globals.playground_width,globals.playground_height), pygame.SRCALPHA, 32)
@@ -157,43 +162,64 @@ class App:
         #use zqsd keys to move the cell
         if event.type == pygame.KEYDOWN:
 
-            #move camera
-            if event.key == pygame.K_UP:
-                self.camera_loc = (self.camera_loc[0], self.camera_loc[1]+10)
-            if event.key == pygame.K_DOWN:
-                self.camera_loc = (self.camera_loc[0], self.camera_loc[1]-10)
-            if event.key == pygame.K_LEFT:
-                self.camera_loc = (self.camera_loc[0]+10, self.camera_loc[1])
-            if event.key == pygame.K_RIGHT:
-                self.camera_loc = (self.camera_loc[0]-10, self.camera_loc[1])
-            self.camera_boundaries = Rectangle(-self.camera_loc[0], -self.camera_loc[1], globals.screen_width, globals.screen_height)
+            keys  = pygame.key.get_pressed()
 
+            if keys[pygame.K_UP] or keys[pygame.K_DOWN] or keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
+                #zoom camera
+                if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT] :
+                    step = 120
+                    if keys[pygame.K_DOWN]:
+                        if self.camera_boundaries.width < 5000 :
+                            self.camera_boundaries.height += step
+                    if keys[pygame.K_UP]:
+                        if self.camera_boundaries.width > 1000 :
+                            self.camera_boundaries.height -= step
+                    self.camera_boundaries.width = int(self.camera_boundaries.height * (globals.screen_width/globals.screen_height))
+                    self.camera_zoom = round(globals.initial_screen_width/self.camera_boundaries.width,2)
+                
+                #move camera
+                else :
+                    step = 10
+                    if keys[pygame.K_UP]:
+                        self.camera_loc = (self.camera_loc[0], self.camera_loc[1]-step)
+                    if keys[pygame.K_DOWN]:
+                        self.camera_loc = (self.camera_loc[0], self.camera_loc[1]+step)
+                    if keys[pygame.K_LEFT]:
+                        self.camera_loc = (self.camera_loc[0]-step, self.camera_loc[1])
+                    if keys[pygame.K_RIGHT]:
+                        self.camera_loc = (self.camera_loc[0]+step, self.camera_loc[1])
+                    self.camera_boundaries = Rectangle(self.camera_loc[0], self.camera_loc[1], self.camera_boundaries.width, self.camera_boundaries.height)
+                
+                print(self.camera_zoom)
+                print(self.camera_loc)
+                print(self.camera_boundaries.width, self.camera_boundaries.height)
 
             #control first cell
-            if len(self.pool_cell) != 0 :
-                if event.key == pygame.K_z:
-                    self.pool_cell[0].move_forward()
-                if event.key == pygame.K_s:
-                    self.pool_cell[0].move_backward()
-                if event.key == pygame.K_q:
-                    self.pool_cell[0].turn_left()
-                if event.key == pygame.K_d:
-                    self.pool_cell[0].turn_right()
+            elif keys[pygame.K_z] or keys[pygame.K_q] or keys[pygame.K_s] or keys[pygame.K_d]:
+                if len(self.pool_cell) != 0 :
+                    if keys[pygame.K_z]:
+                        self.pool_cell[0].move_forward()
+                    if keys[pygame.K_s]:
+                        self.pool_cell[0].move_backward()
+                    if keys[pygame.K_q]:
+                        self.pool_cell[0].turn_left()
+                    if keys[pygame.K_d]:
+                        self.pool_cell[0].turn_right()
             
             #control time
-            if event.key == pygame.K_p:
+            elif keys[pygame.K_p]:
                 globals.increase_speed()
                 if len(self.pool_cell) != 0 :
                     for cell in self.pool_cell:
                         cell.update_speed()
-            if event.key == pygame.K_m:
+            elif keys[pygame.K_m]:
                 globals.decrease_speed()
                 if len(self.pool_cell) != 0 :
                     for cell in self.pool_cell:
                         cell.update_speed()
 
             #delete every food
-            if event.key == pygame.K_SPACE:
+            elif keys[pygame.K_SPACE]:
                 for food in self.quadtree.particles:
                     self.quadtree.delete(food)
                 self.quadtree.particles = np.array([])
@@ -223,24 +249,18 @@ class App:
         self.screen.fill(color.background) 
 
         #print useful data on debug_screen
-        clear_surface(self.debug_screen)
+        #clear_surface(self.debug_screen)
         #self.quadtree.show(self.debug_screen)
         # for qt in self.quadtree_test :
         #     qt.show(self.debug_screen, (255,0,0))
-        sentence_speed = "x"+str(globals.time_speed)+" : "+str(int(self.clock.get_fps()))+" FPS"
-        time_surface = self.my_font.render(sentence_speed, False, (0, 0, 0))
-
-        sentence_cells_alive = "no. of cells alive : "+str(len(self.pool_cell))
-        alive_surface = self.my_font.render(sentence_cells_alive, False, (0, 0, 0))
-
-        self.screen.blit(time_surface, (5,0))
-        self.screen.blit(alive_surface, (5,20))
+        
 
 
         for test in self.pool_test:
             test.shift_color((-255,-255,+255))
             if self.camera_boundaries.containsParticle(test.pos) :
                 self.debug_screen.blit(test.img, test)
+            
 
         #print each food on food_screen
         clear_surface(self.food_screen)
@@ -252,17 +272,33 @@ class App:
                 food.shift_color((255,-255,-255))
             if self.camera_boundaries.containsParticle(food.pos) :
                 self.food_screen.blit(food.img, food)
+        #self.food_screen = pygame.transform.scale(self.food_screen, (self.camera_boundaries.width, self.camera_boundaries.height))
 
         #print each cell on cell_screen
         clear_surface(self.cell_screen)
         for cell in self.pool_cell:
             if self.camera_boundaries.containsParticle((cell.posx, cell.posy)) :
                 self.cell_screen.blit(cell.img, cell)
+        #self.cell_screen = pygame.transform.scale(self.cell_screen, (self.camera_boundaries.width, self.camera_boundaries.height))
+        
 
         #copy every screen into the main screen
-        self.screen.blit(self.cell_screen, self.camera_loc)
-        self.screen.blit(self.food_screen, self.camera_loc)
-        self.screen.blit(self.debug_screen, self.camera_loc)
+        clear_surface(self.camera_screen)
+        self.camera_screen.blits([(self.cell_screen, (0,0)),(self.food_screen, (0,0)),(self.debug_screen, (0,0))])
+        self.camera_boundaries.draw(self.camera_screen, color=(255,0,0))
+        w = self.camera_screen.get_width()*(globals.screen_width/self.camera_boundaries.width)
+        h = self.camera_screen.get_height()*(globals.screen_height/self.camera_boundaries.height)
+        self.camera_test = pygame.transform.scale(self.camera_screen, (int(w),int(h)))
+        self.screen.blit(self.camera_test, (-self.camera_loc[0]*self.camera_zoom, -self.camera_loc[1]*self.camera_zoom))
+
+
+        #info displayed
+        sentence_speed = "x"+str(globals.time_speed)+" : "+str(int(self.clock.get_fps()))+" FPS"
+        time_surface = self.my_font.render(sentence_speed, False, (0, 0, 0))
+        sentence_cells_alive = "no. of cells alive : "+str(len(self.pool_cell))
+        alive_surface = self.my_font.render(sentence_cells_alive, False, (0, 0, 0))
+        self.screen.blit(time_surface, (5,0))
+        self.screen.blit(alive_surface, (5,20))
 
         pygame.display.flip()
 

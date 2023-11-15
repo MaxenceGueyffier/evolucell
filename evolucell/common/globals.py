@@ -3,6 +3,8 @@ playground_height = 1200
 
 screen_width = 1000
 screen_height = 600
+initial_screen_width = screen_width
+
 
 initial_qtt_of_food = int(500*((playground_width/screen_width)**2))
 
