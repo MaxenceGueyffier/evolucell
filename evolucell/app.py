@@ -114,7 +114,9 @@ class App:
                 print(x, y)
             else :
                 if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT] :
-                    self.quadtree.insert(Food(x,y,1))
+                    new_food = Food(x,y,1)
+                    new_food.shift_color((255,-255,-255))
+                    self.quadtree.insert(new_food)
                 else :
                     cell = Cell(x,y)
                     self.pool_cell = np.append(self.pool_cell, cell)
