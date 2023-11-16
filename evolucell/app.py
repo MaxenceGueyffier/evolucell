@@ -10,6 +10,7 @@ from .food import Food
 from .quadtree import Quadtree, contain
 from .rectangle import Rectangle
 from .colision_handler import *
+from .camera import Camera
 
 def clear_surface(surface):
         surface.fill([0,0,0,0])
@@ -21,19 +22,15 @@ class App:
         self.screen = None
         self.size = globals.screen_width, globals.screen_height
         self.clock = pygame.time.Clock()
-        self.pool_cell = np.array([])
         #self.pool_test = np.array([])
         #self.quadtree_test = np.array([])
         self.timer_food = 0
         self.wait_for_food = 0
-        self.camera_loc = (0,0) #top_left corner of the camera
-        self.camera_zoom = 1
-        self.camera_boundaries = Rectangle(self.camera_loc[0], self.camera_loc[1], globals.screen_width, globals.screen_height)
+        self.camera = Camera()
 
     def on_execute(self):
         if self.on_init() == False:
             self._running = False
- 
         while( self._running ):
             for event in pygame.event.get():
                 self.on_event(event)
@@ -66,9 +63,6 @@ class App:
         #background
         self.screen = pygame.display.set_mode(self.size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self.screen.fill(color.background) 
-        #camera screen
-        self.camera_screen = pygame.surface.Surface((globals.playground_width,globals.playground_height), pygame.SRCALPHA, 32)
-        self.camera_screen.convert_alpha()
         #debug screen
         self.debug_screen = pygame.surface.Surface((globals.playground_width,globals.playground_height), pygame.SRCALPHA, 32)
         self.debug_screen.convert_alpha()
@@ -87,11 +81,13 @@ class App:
         #launching food
         for i in range(globals.initial_qtt_of_food):
             self.quadtree.insert(Food(size=1))
-        food1 = Food(500,10)
-        self.quadtree.insert(food1)
+        #food1 = Food(1900,1100)
+        #food1.shift_color((255,-255,-255))
+        #self.quadtree.insert(food1)
 
     def create_pool_cell(self):
         """launching cell"""
+        self.pool_cell = np.array([])
         cell1 = Cell(500,300)
         self.pool_cell = np.append(self.pool_cell, cell1)
 
@@ -112,9 +108,8 @@ class App:
         """if the user clicked somewhere on the screen, add cell and return True"""
         if event.type == pygame.MOUSEBUTTONDOWN:
             keys  = pygame.key.get_pressed()
-            x, y = pygame.mouse.get_pos()
-            x -= self.camera_loc[0]
-            y -= self.camera_loc[1]
+            local_coordinates = pygame.mouse.get_pos()
+            x,y = self.camera.get_relative_coordinates(local_coordinates)
             if keys[pygame.K_q]:
                 print(x, y)
             else :
@@ -131,8 +126,8 @@ class App:
         if event.type == pygame.KEYDOWN:
             keys  = pygame.key.get_pressed()
             if self.event_camera(keys):
-                print(self.camera_zoom)
-                print(self.camera_loc, self.camera_boundaries.width, self.camera_boundaries.height)
+                print(self.camera.zoom)
+                print(self.camera.loc, self.camera.boundaries.width, self.camera.boundaries.height)
             elif self.event_ctrl_cell(keys):
                 pass
             elif self.event_speed(keys):
@@ -148,34 +143,45 @@ class App:
         """if user pressed zqsd keys, move (or zoom if shift is also pressed) and return True"""
         if keys[pygame.K_UP] or keys[pygame.K_DOWN] or keys[pygame.K_LEFT] or keys[pygame.K_RIGHT]:
             if keys[pygame.K_LSHIFT] or keys[pygame.K_RSHIFT] :
-                self.zoom_camera(keys)
+                step = 0
+                if keys[pygame.K_DOWN]:
+                    step = 120
+                elif keys[pygame.K_UP]:
+                    step = -120
+                self.camera.zoom(step)
             else :
-                self.move_camera(keys)
+                (x,y) = (0,0)
+                step = 10
+                if keys[pygame.K_UP]:
+                    y += step
+                elif keys[pygame.K_DOWN]:
+                    y -= step
+                if keys[pygame.K_LEFT]:
+                    x -= step
+                elif keys[pygame.K_RIGHT]:
+                    x += step
+                self.camera.move((x,y))
             return True
         return False
 
     def zoom_camera(self, keys):
         step = 120
         if keys[pygame.K_DOWN]:
-            if self.camera_boundaries.width < 5000 :
-                self.camera_boundaries.height += step
-        if keys[pygame.K_UP]:
-            if self.camera_boundaries.width > 1000 :
-                self.camera_boundaries.height -= step
-        self.camera_boundaries.width = int(self.camera_boundaries.height * (globals.screen_width/globals.screen_height))
-        self.camera_zoom = round(globals.initial_screen_width/self.camera_boundaries.width,2)
+            self.camera.zoom(step)
+        elif keys[pygame.K_UP]:
+            self.camera.zoom(-step)
+
     
     def move_camera(self, keys):
         step = 10
         if keys[pygame.K_UP]:
-            self.camera_loc = (self.camera_loc[0], self.camera_loc[1]-step)
-        if keys[pygame.K_DOWN]:
-            self.camera_loc = (self.camera_loc[0], self.camera_loc[1]+step)
+            self.camera.move((0,step))
+        elif keys[pygame.K_DOWN]:
+            self.camera.move((0,-step))
         if keys[pygame.K_LEFT]:
-            self.camera_loc = (self.camera_loc[0]-step, self.camera_loc[1])
-        if keys[pygame.K_RIGHT]:
-            self.camera_loc = (self.camera_loc[0]+step, self.camera_loc[1])
-        self.camera_boundaries = Rectangle(self.camera_loc[0], self.camera_loc[1], self.camera_boundaries.width, self.camera_boundaries.height)
+            self.camera.move((-step,0))
+        elif keys[pygame.K_RIGHT]:
+            self.camera.move((step,0))
 
     def event_ctrl_cell(self, keys):
         """control first cell with zqsd keys and return True, if it's impossible return False"""
@@ -289,7 +295,7 @@ class App:
         """print tests on the debug_screen"""
         for test in self.pool_test:
             test.shift_color((-255,-255,+255))
-            if self.camera_boundaries.containsParticle(test.pos) :
+            if self.camera.contains_particle(test.pos) :
                 self.debug_screen.blit(test.img, test)
 
     def display_food(self):
@@ -301,25 +307,21 @@ class App:
                 print("ERROR : unknown")
                 self.quadtree.delete(food)
                 food.shift_color((255,-255,-255))
-            if self.camera_boundaries.containsParticle(food.pos) :
+            if self.camera.contains_particle(food.pos) :
                 self.food_screen.blit(food.img, food)
 
     def display_cell(self):
         """print cells on the cell_screen"""
         clear_surface(self.cell_screen)
         for cell in self.pool_cell:
-            if self.camera_boundaries.containsParticle((cell.posx, cell.posy)) :
+            if self.camera.contains_particle((cell.posx,cell.posy)) :
                 self.cell_screen.blit(cell.img, cell)
 
     def merge_screens(self):
         """copy every screen into the main screen"""
-        clear_surface(self.camera_screen)
-        self.camera_screen.blits([(self.cell_screen, (0,0)),(self.food_screen, (0,0)),(self.debug_screen, (0,0))])
-        #self.camera_boundaries.draw(self.camera_screen, color=(255,0,0))
-        w = self.camera_screen.get_width()*(globals.screen_width/self.camera_boundaries.width)
-        h = self.camera_screen.get_height()*(globals.screen_height/self.camera_boundaries.height)
-        self.camera_test = pygame.transform.scale(self.camera_screen, (int(w),int(h)))
-        self.screen.blit(self.camera_test, (-self.camera_loc[0]*self.camera_zoom, -self.camera_loc[1]*self.camera_zoom))
+        list_screens = [(self.cell_screen, (0,0)),(self.food_screen, (0,0)),(self.debug_screen, (0,0))]
+        output_screen, output_pos = self.camera.render(list_screens)
+        self.screen.blit(output_screen, output_pos)
 
     def display_info(self):
         """display useful data"""
