@@ -13,16 +13,16 @@ class Camera:
     def move(self, move_vector):
         (x,y) = move_vector
         self.loc = (self.loc[0]+x, self.loc[1]-y)
-        self.boundaries.x = self.loc[0]
-        self.boundaries.y = self.loc[1]
+        self.boundaries.posx = self.loc[0]
+        self.boundaries.posy = self.loc[1]
 
     def zoom(self, value):
         if (self.boundaries.width>1000 and value<0) or (self.boundaries.width<5000 and value>0):
             self.boundaries.height += value
             self.boundaries.width = int(self.boundaries.height * (globals.screen_width/globals.screen_height))
             self.loc = (self.loc[0]-(value*(globals.screen_width/globals.screen_height))/2, self.loc[1]-value/2)
-            self.boundaries.x = self.loc[0]
-            self.boundaries.y = self.loc[1]
+            self.boundaries.posx = self.loc[0]
+            self.boundaries.posy = self.loc[1]
             self.zoom_coef = globals.initial_screen_width/self.boundaries.width
 
     def get_relative_coordinates(self, local_coordinates):

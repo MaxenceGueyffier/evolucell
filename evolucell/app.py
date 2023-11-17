@@ -65,13 +65,11 @@ class App:
         self.screen.fill(color.background) 
         #debug screen
         self.debug_screen = pygame.surface.Surface((globals.playground_width,globals.playground_height), pygame.SRCALPHA, 32)
-        self.debug_screen.convert_alpha()
+        
         #food screen
         self.food_screen = pygame.surface.Surface((globals.playground_width,globals.playground_height), pygame.SRCALPHA, 32)
-        self.food_screen.convert_alpha()
         #cell_screen
         self.cell_screen = pygame.surface.Surface((globals.playground_width,globals.playground_height), pygame.SRCALPHA, 32)
-        self.cell_screen.convert_alpha()
 
     def create_quadtree_food(self):
         """fullfill the first quadtree with food particles"""
@@ -278,9 +276,9 @@ class App:
         """manage the screen display"""
         #erase main screen
         self.screen.fill(color.background) 
-        # self.display_test()     
         self.display_food()
         self.display_cell()
+        self.display_test()     
         self.merge_screens()
         self.display_info()
         pygame.display.flip()
@@ -295,22 +293,22 @@ class App:
 
     def display_test(self):
         """print tests on the debug_screen"""
-        for test in self.pool_test:
-            test.shift_color((-255,-255,+255))
-            if self.camera.contains_particle(test.pos) :
-                self.debug_screen.blit(test.img, test)
+        #self.camera.boundaries.draw(self.debug_screen, (255,0,0))
 
     def display_food(self):
         """print food particles on the food_screen"""
+        
         clear_surface(self.food_screen)
+
         for food in self.quadtree.particles:
-            qt_final = self.quadtree.get_last_quadtree_from_pos(food.pos)
-            if not contain(food.pos, qt_final.particles) :
-                print("ERROR : unknown")
-                self.quadtree.delete(food)
-                food.shift_color((255,-255,-255))
             if self.camera.contains_particle(food.pos) :
                 self.food_screen.blit(food.img, food)
+                qt_final = self.quadtree.get_last_quadtree_from_pos(food.pos)
+                if not contain(food.pos, qt_final.particles) :
+                    print("ERROR : unknown")
+                    self.quadtree.delete(food)
+                    food.shift_color((255,-255,-255))
+                    
 
     def display_cell(self):
         """print cells on the cell_screen"""

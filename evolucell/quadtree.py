@@ -52,26 +52,26 @@ class Quadtree:
         # create 4 Rectangles
         parent = self.boundary
         boundary_nw = Rectangle(
-                parent.x,
-                parent.y,
+                parent.posx,
+                parent.posy,
                 int(parent.width/2),
                 int(parent.height/2)
             )
         boundary_ne = Rectangle(
-                parent.x + int(parent.width/2),
-                parent.y,
+                parent.posx + int(parent.width/2),
+                parent.posy,
                 parent.width - int(parent.width/2),
                 int(parent.height/2)
             )
         boundary_sw = Rectangle(
-                parent.x,
-                parent.y + int(parent.height/2),
+                parent.posx,
+                parent.posy + int(parent.height/2),
                 int(parent.width/2),
                 parent.height - int(parent.height/2)
             )
         boundary_se = Rectangle(
-                parent.x + int(parent.width/2),
-                parent.y + int(parent.height/2),
+                parent.posx + int(parent.width/2),
+                parent.posy + int(parent.height/2),
                 parent.width - int(parent.width/2),
                 parent.height - int(parent.height/2)
             )
@@ -195,3 +195,14 @@ class Quadtree:
                 return self
         else : 
             return self
+        
+    # def get_last_quadtree_overlapping(self, rect: Rectangle, list_qt = np.array([])):
+    #     if rect.is_overlapping(self.boundary):
+    #         if self.northWest != None:
+    #             list_qt = self.northWest.get_last_quadtree_overlapping(rect, list_qt)
+    #             list_qt = self.northEast.get_last_quadtree_overlapping(rect, list_qt)
+    #             list_qt = self.southWest.get_last_quadtree_overlapping(rect, list_qt)
+    #             list_qt = self.southEast.get_last_quadtree_overlapping(rect, list_qt)
+    #         else :
+    #             list_qt = np.append(list_qt ,self)
+    #     return list_qt

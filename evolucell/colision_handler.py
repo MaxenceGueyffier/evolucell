@@ -2,6 +2,7 @@ import numpy as np
 import pygame
 
 from .sprite import Sprite
+from .rectangle import Rectangle
 from .quadtree import Quadtree, contain
 from .common import globals as globals
 
@@ -17,7 +18,7 @@ def get_maximal_depth(sprite: Sprite) :
 
 def get_quadtrees_from_a_sprite (sprite: Sprite, quadtree: Quadtree, depth = 4):
     """
-    From a specific sprite, get each quadtree where it could be located.
+    From a specific sprite, get each quadtree it could overlap.
     The sprite has a volume, so it could fit in several quadtrees.\n
     sprite : can be any sprite
     quadtree : the first Quadtree where to look for
@@ -34,6 +35,26 @@ def get_quadtrees_from_a_sprite (sprite: Sprite, quadtree: Quadtree, depth = 4):
     quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree_from_pos((x,h),depth))
     quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree_from_pos((w,h),depth))
     return quadtree_array
+
+def get_minimal_quadtrees_from_a_rectangle (rectangle: Rectangle, quadtree: Quadtree, depth = 4):
+    """
+    From a specific rectangle, get each quadtree it could overlap.\n
+    rectangle : can be any rectangle
+    quadtree : the first Quadtree where to look for
+    depth : maximal subdivision of the initial Quadtree.\n
+    Return a list of Quadtrees
+    """
+    x = rectangle.posx
+    y = rectangle.posy
+    w = rectangle.width
+    h = rectangle.height
+    quadtree_array = np.array([])
+    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree_from_pos((x,y),depth))
+    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree_from_pos((w,y),depth))
+    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree_from_pos((x,h),depth))
+    quadtree_array = np.append(quadtree_array, quadtree.get_last_quadtree_from_pos((w,h),depth))
+    return quadtree_array
+
 
 def list_colision(_object:Sprite, quadtree: Quadtree, screen=None):
     """Finds which particles in the quadtree are colliding with the _object (which is also a Sprite)\n
